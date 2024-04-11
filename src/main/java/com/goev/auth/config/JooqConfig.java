@@ -1,10 +1,12 @@
 package com.goev.auth.config;
 
+import com.goev.auth.config.interceptor.JooqAutoInsertUpdateListener;
 import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DataSourceConnectionProvider;
 import org.jooq.impl.DefaultConfiguration;
 import org.jooq.impl.DefaultDSLContext;
+import org.jooq.impl.DefaultRecordListenerProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
@@ -24,6 +26,8 @@ public class JooqConfig {
         DefaultConfiguration jooqConfiguration = new DefaultConfiguration();
         jooqConfiguration.set(connectionProvider(dataSource));
         jooqConfiguration.set(SQLDialect.MYSQL);
+        jooqConfiguration.set(SQLDialect.MYSQL);
+        jooqConfiguration.set(new DefaultRecordListenerProvider(new JooqAutoInsertUpdateListener()));
         jooqConfiguration.set(new Settings().withFetchWarnings(false));
         return jooqConfiguration;
     }

@@ -16,7 +16,7 @@ import java.util.Base64;
 @Component
 @Slf4j
 @AllArgsConstructor
-public class AuthenticationInterceptor implements HandlerInterceptor {
+public class BasicAuthenticationInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (HttpMethod.OPTIONS.name().equals(request.getMethod())) {
@@ -29,12 +29,24 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         }
         String tokenType = authorizationHeader.split(" ")[0];
 
-        if (tokenType == null || !tokenType.toLowerCase().startsWith("bearer"))
+        if (tokenType == null || !tokenType.toLowerCase().startsWith("basic"))
             throw new ResponseException("Invalid Access Token");
         String token = authorizationHeader.split(" ")[1];
 
         if (token == null)
             throw new ResponseException("Invalid Access Token");
+
+        byte[] decodedBytes = Base64.getDecoder().decode(token);
+        String decodedString = new String(decodedBytes);
+        String clientId = decodedString.split(":")[0];
+        String clientSecret = decodedString.split(":")[1];
+
+        request.setAttribute("clientId",clientId);
+        request.setAttribute("clientSecret",clientSecret);
+
+        /** Code to Authenticate */
+
+
         return true;
     }
 

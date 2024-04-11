@@ -56,6 +56,11 @@ dependencies {
 	implementation 'joda-time:joda-time:2.12.1'
 	implementation 'software.amazon.awssdk:protocol-core:2.17.261'
 	implementation 'io.micrometer:micrometer-registry-prometheus'
+	implementation 'org.keycloak:keycloak-admin-client:24.0.2'
+	implementation 'org.jboss.resteasy:resteasy-jackson2-provider:6.2.8.Final'
+	implementation 'org.jboss.resteasy:resteasy-client:6.2.8.Final'
+
+
 
 
 	if (System.getenv("ENV") == 'local' || System.getenv("ENV") == null) {
