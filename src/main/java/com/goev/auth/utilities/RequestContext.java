@@ -5,6 +5,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 public class RequestContext {
+    private RequestContext(){}
 
     public static String getClientId() {
         ServletRequestAttributes requestAttributes = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes());
@@ -52,4 +53,5 @@ public class RequestContext {
         }
         return clientSecret;
     }
+
 }

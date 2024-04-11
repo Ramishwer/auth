@@ -1,5 +1,6 @@
 package com.goev.auth.config.interceptor;
 
+import com.goev.auth.utilities.RequestContext;
 import com.goev.lib.utilities.ApplicationContext;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
@@ -20,13 +21,12 @@ public class JooqAutoInsertUpdateListener implements RecordListener {
     public static final String CREATED_BY = "created_by";
     public static final String UPDATED_BY = "updated_by";
     public static final String API_SOURCE = "api_source";
-    public static final String ORGANIZATION_ID = "organization_id";
     public static final String UUID_KEY = "uuid";
 
     @Override
     public void insertStart(RecordContext ctx) {
 
-        String authId = ApplicationContext.getAuthUUID();
+        String authUUID = ApplicationContext.getAuthUUID();
         Record rowData = ctx.record();
 
         if (rowData.field(CREATED_TIMESTAMP) != null && rowData.get(rowData.field(CREATED_TIMESTAMP)) == null)
@@ -42,13 +42,10 @@ public class JooqAutoInsertUpdateListener implements RecordListener {
             rowData.set((Field<? super DateTime>) rowData.field(UPDATED_ON), DateTime.now());
 
         if (rowData.field(CREATED_BY) != null && rowData.get(rowData.field(CREATED_BY)) == null)
-            rowData.set((Field<? super String>) rowData.field(CREATED_BY), authId);
+            rowData.set((Field<? super String>) rowData.field(CREATED_BY), authUUID);
 
         if (rowData.field(UPDATED_BY) != null)
-            rowData.set((Field<? super String>) rowData.field(UPDATED_BY), authId);
-
-        if (rowData.field(ORGANIZATION_ID) != null)
-            rowData.set((Field<? super String>) rowData.field(ORGANIZATION_ID), ApplicationContext.getOrganizationUUID());
+            rowData.set((Field<? super String>) rowData.field(UPDATED_BY), authUUID);
 
         if (rowData.field(API_SOURCE) != null)
             rowData.set((Field<? super String>) rowData.field(API_SOURCE), ApplicationContext.getApplicationSource());
@@ -59,7 +56,7 @@ public class JooqAutoInsertUpdateListener implements RecordListener {
 
     @Override
     public void updateStart(RecordContext ctx) {
-        String authId = ApplicationContext.getAuthUUID();
+        String authUUID = ApplicationContext.getAuthUUID();
         Record rowData = ctx.record();
         if (rowData.field(UPDATED_TIMESTAMP) != null)
             rowData.set((Field<? super DateTime>) rowData.field(UPDATED_TIMESTAMP), DateTime.now());
@@ -68,7 +65,7 @@ public class JooqAutoInsertUpdateListener implements RecordListener {
             rowData.set((Field<? super DateTime>) rowData.field(UPDATED_ON), DateTime.now());
 
         if (rowData.field(UPDATED_BY) != null)
-            rowData.set((Field<? super String>) rowData.field(UPDATED_BY), authId);
+            rowData.set((Field<? super String>) rowData.field(UPDATED_BY), authUUID);
 
         if (rowData.field(API_SOURCE) != null)
             rowData.set((Field<? super String>) rowData.field(API_SOURCE), ApplicationContext.getApplicationSource());
