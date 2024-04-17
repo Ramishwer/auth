@@ -31,7 +31,7 @@ public class SessionController {
     }
 
     @PostMapping("/sessions/tokens")
-    public ResponseDto<SessionDto> createSession(KeycloakTokenDto token){
+    public ResponseDto<SessionDto> createSession(SessionDto token){
         return new ResponseDto<>(StatusDto.builder().message("SUCCESS").build(),200, sessionService.createSession(token));
     }
 

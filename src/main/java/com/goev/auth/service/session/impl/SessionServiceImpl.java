@@ -28,9 +28,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
-import java.util.UUID;
-
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -92,12 +89,13 @@ public class SessionServiceImpl implements SessionService {
                 .refreshToken(token.getRefreshToken())
                 .authUUID(user.getUuid())
                 .expiresIn(session.getExpiresIn())
+                .refreshExpiresIn(session.getRefreshExpiresIn())
                 .uuid(session.getUuid())
                 .build();
     }
 
     @Override
-    public SessionDto createSession(KeycloakTokenDto token) {
+    public SessionDto createSession(SessionDto token) {
         String clientId = RequestContext.getClientId();
         String clientSecret = RequestContext.getClientSecret();
         AuthClientDao clientDao = authClientRepository.findByClientIdAndClientSecret(clientId, clientSecret);
@@ -128,6 +126,7 @@ public class SessionServiceImpl implements SessionService {
                 .refreshToken(token.getRefreshToken())
                 .authUUID(user.getUuid())
                 .expiresIn(session.getExpiresIn())
+                .refreshExpiresIn(session.getRefreshExpiresIn())
                 .uuid(session.getUuid())
                 .build();
     }
