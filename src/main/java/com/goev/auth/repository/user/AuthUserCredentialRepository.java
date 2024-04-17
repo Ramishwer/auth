@@ -13,4 +13,6 @@ public interface AuthUserCredentialRepository {
     List<AuthUserCredentialDao> findAllByIds(Integer... ids);
     List<AuthUserCredentialDao> findAll();
     AuthUserCredentialDao findByAuthUserIdAndCredentialTypeId(Integer authUserId, Integer credentialTypeId);
+
+    AuthUserCredentialDao findByKeycloakId(String sub);
 }

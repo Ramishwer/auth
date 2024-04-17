@@ -97,6 +97,42 @@ public class SessionServiceImpl implements SessionService {
     }
 
     @Override
+    public SessionDto createSession(KeycloakTokenDto token) {
+        String clientId = RequestContext.getClientId();
+        String clientSecret = RequestContext.getClientSecret();
+        AuthClientDao clientDao = authClientRepository.findByClientIdAndClientSecret(clientId, clientSecret);
+        if (clientDao == null)
+            throw new ResponseException("Invalid Client");
+
+
+        KeycloakUserDetailsDto userDetailsDto = keycloakService.getUserDetailsForToken(RequestContext.getAccessToken(), clientDao);
+        if (userDetailsDto == null)
+            throw new ResponseException("Invalid Access Token");
+        AuthUserCredentialDao userCredentialDao = authUserCredentialRepository.findByKeycloakId(userDetailsDto.getSub());
+        if(userCredentialDao == null)
+            throw new ResponseException("Invalid Credential");
+
+        AuthUserDao user = authUserRepository.findById(userCredentialDao.getAuthUserId());
+
+        AuthUserSessionDao session = new AuthUserSessionDao();
+
+        session.setAccessToken(RequestContext.getAccessToken());
+        session.setRefreshToken(RequestContext.getRefreshToken());
+        session.setAuthUserCredentialId(userCredentialDao.getId());
+        session.setAuthUserId(user.getId());
+        session.setExpiresIn(token.getExpiresIn());
+        session.setRefreshExpiresIn(token.getRefreshExpiresIn());
+        session = authUserSessionRepository.save(session);
+        return SessionDto.builder()
+                .accessToken(token.getAccessToken())
+                .refreshToken(token.getRefreshToken())
+                .authUUID(user.getUuid())
+                .expiresIn(session.getExpiresIn())
+                .uuid(session.getUuid())
+                .build();
+    }
+
+    @Override
     public SessionDto refreshSessionForSessionUUID(String sessionUUID) {
 
         String clientId = RequestContext.getClientId();

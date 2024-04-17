@@ -69,4 +69,11 @@ public class AuthUserCredentialRepositoryImpl implements AuthUserCredentialRepos
                 .and(AUTH_USER_CREDENTIALS.AUTH_USER_ID.eq(authUserId))
                 .fetchOneInto(AuthUserCredentialDao.class);
     }
+
+    @Override
+    public AuthUserCredentialDao findByKeycloakId(String sub) {
+        return context.selectFrom(AUTH_USER_CREDENTIALS)
+                .where(AUTH_USER_CREDENTIALS.KEYCLOAK_UUID.eq(sub))
+                .fetchOneInto(AuthUserCredentialDao.class);
+    }
 }
