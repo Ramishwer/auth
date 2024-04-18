@@ -17,6 +17,8 @@ public class AuthUserSessionDao extends BaseDao {
     private Integer authUserId;
     private Integer expiresIn;
     private Integer refreshExpiresIn;
+    private String idToken;
+
 
 }
 

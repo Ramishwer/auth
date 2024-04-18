@@ -11,6 +11,7 @@ import com.goev.auth.dto.auth.AuthCredentialDto;
 import com.goev.auth.dto.auth.AuthCredentialTypeDto;
 import com.goev.auth.dto.keycloak.KeycloakTokenDto;
 import com.goev.auth.dto.keycloak.KeycloakUserDetailsDto;
+import com.goev.auth.dto.session.ExchangeTokenRequestDto;
 import com.goev.auth.dto.session.SessionDetailsDto;
 import com.goev.auth.dto.session.SessionDto;
 import com.goev.auth.repository.auth.AuthClientCredentialTypeMappingRepository;
@@ -83,6 +84,7 @@ public class SessionServiceImpl implements SessionService {
         session.setAuthUserId(credentialDao.getAuthUserId());
         session.setExpiresIn(token.getExpiresIn());
         session.setRefreshExpiresIn(token.getRefreshExpiresIn());
+        session.setIdToken(token.getIdToken());
         session = authUserSessionRepository.save(session);
         return SessionDto.builder()
                 .accessToken(token.getAccessToken())
@@ -95,7 +97,7 @@ public class SessionServiceImpl implements SessionService {
     }
 
     @Override
-    public SessionDto createSession(SessionDto token) {
+    public SessionDto createSession(ExchangeTokenRequestDto exchangeTokenRequest) {
         String clientId = RequestContext.getClientId();
         String clientSecret = RequestContext.getClientSecret();
         AuthClientDao clientDao = authClientRepository.findByClientIdAndClientSecret(clientId, clientSecret);
@@ -103,7 +105,7 @@ public class SessionServiceImpl implements SessionService {
             throw new ResponseException("Invalid Client");
 
 
-        KeycloakUserDetailsDto userDetailsDto = keycloakService.getUserDetailsForToken(RequestContext.getAccessToken(), clientDao);
+        KeycloakUserDetailsDto userDetailsDto = keycloakService.getUserDetailsForToken("Bearer " + exchangeTokenRequest.getAccessToken(), clientDao);
         if (userDetailsDto == null)
             throw new ResponseException("Invalid Access Token");
         AuthUserCredentialDao userCredentialDao = authUserCredentialRepository.findByKeycloakId(userDetailsDto.getSub());
@@ -112,14 +114,19 @@ public class SessionServiceImpl implements SessionService {
 
         AuthUserDao user = authUserRepository.findById(userCredentialDao.getAuthUserId());
 
+        KeycloakTokenDto token = keycloakService.getExchangeTokenForToken(exchangeTokenRequest, clientDao);
+        if(token == null)
+            throw new ResponseException("Invalid Credential");
+
         AuthUserSessionDao session = new AuthUserSessionDao();
 
-        session.setAccessToken(RequestContext.getAccessToken());
-        session.setRefreshToken(RequestContext.getRefreshToken());
+        session.setAccessToken(token.getAccessToken());
+        session.setRefreshToken(token.getRefreshToken());
         session.setAuthUserCredentialId(userCredentialDao.getId());
         session.setAuthUserId(user.getId());
         session.setExpiresIn(token.getExpiresIn());
         session.setRefreshExpiresIn(token.getRefreshExpiresIn());
+        session.setIdToken(token.getIdToken());
         session = authUserSessionRepository.save(session);
         return SessionDto.builder()
                 .accessToken(token.getAccessToken())
@@ -154,6 +161,7 @@ public class SessionServiceImpl implements SessionService {
         newSession.setExpiresIn(token.getExpiresIn());
         newSession.setRefreshExpiresIn(token.getRefreshExpiresIn());
         newSession.setAuthUserId(session.getAuthUserCredentialId());
+        newSession.setIdToken(token.getIdToken());
         newSession = authUserSessionRepository.save(newSession);
         AuthUserDao user = authUserRepository.findById(session.getAuthUserId());
 
@@ -212,9 +220,7 @@ public class SessionServiceImpl implements SessionService {
         if (clientDao == null)
             throw new ResponseException("Invalid Client");
 
-        keycloakService.logout(KeycloakTokenDto.builder()
-                .accessToken(RequestContext.getAccessToken())
-                .refreshToken(RequestContext.getRefreshToken()).build(), clientDao);
+        keycloakService.logout(session.getIdToken(), clientDao);
         return true;
     }
 

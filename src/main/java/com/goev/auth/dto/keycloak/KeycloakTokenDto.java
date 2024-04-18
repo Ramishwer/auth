@@ -21,4 +21,6 @@ public class KeycloakTokenDto {
     private String scope;
     @SerializedName("session_state")
     private String sessionState;
+    @SerializedName("id_token")
+    private String idToken;
 }

@@ -3,6 +3,7 @@ package com.goev.auth.controller;
 
 import com.goev.auth.dto.auth.AuthCredentialDto;
 import com.goev.auth.dto.keycloak.KeycloakTokenDto;
+import com.goev.auth.dto.session.ExchangeTokenRequestDto;
 import com.goev.auth.dto.session.SessionDetailsDto;
 import com.goev.auth.dto.session.SessionDto;
 import com.goev.auth.service.session.SessionService;
@@ -31,7 +32,7 @@ public class SessionController {
     }
 
     @PostMapping("/sessions/tokens")
-    public ResponseDto<SessionDto> createSession(SessionDto token){
+    public ResponseDto<SessionDto> createSession(@RequestBody ExchangeTokenRequestDto token){
         return new ResponseDto<>(StatusDto.builder().message("SUCCESS").build(),200, sessionService.createSession(token));
     }
 

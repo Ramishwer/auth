@@ -2,10 +2,10 @@ package com.goev.auth.service.keycloak.impl;
 
 import com.goev.auth.dao.auth.AuthClientDao;
 import com.goev.auth.dao.user.AuthUserCredentialDao;
-import com.goev.auth.dao.user.AuthUserDao;
 import com.goev.auth.dto.auth.AuthCredentialDto;
 import com.goev.auth.dto.keycloak.KeycloakTokenDto;
 import com.goev.auth.dto.keycloak.KeycloakUserDetailsDto;
+import com.goev.auth.dto.session.ExchangeTokenRequestDto;
 import com.goev.auth.service.keycloak.KeycloakService;
 import com.goev.lib.services.RestClient;
 import com.google.gson.Gson;
@@ -57,6 +57,29 @@ public class KeycloakServiceImpl implements KeycloakService {
             formVars.add(GRANT_TYPE_TEXT, REFRESH_TOKEN_TEXT);
             formVars.add(CLIENT_ID_TEXT, client.getClientKey());
             formVars.add(CLIENT_SECRET_TEXT, client.getClientAuthSecret());
+            String url = client.getKeycloakUrl() + SUB_PATH + client.getRealm() + "/protocol/openid-connect/token";
+            String response = restClient.post(url, headers, formVars, String.class, true);
+            return gson.fromJson(response, new TypeToken<KeycloakTokenDto>() {
+            }.getType());
+        } catch (Exception e) {
+            log.info("Exception occurred", e);
+            throw e;
+        }
+    }
+
+    @Override
+    public KeycloakTokenDto getExchangeTokenForToken(ExchangeTokenRequestDto tokenRequest, AuthClientDao client) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            headers.add(CHARSET_TEXT, CHARSET_VALUE);
+            MultiValueMap<String, String> formVars = new LinkedMultiValueMap<>();
+            formVars.add("audience",client.getClientKey());
+            formVars.add("subject_token", tokenRequest.getAccessToken());
+            formVars.add(GRANT_TYPE_TEXT, "urn:ietf:params:oauth:grant-type:token-exchange");
+            formVars.add("scope","openid");
+            formVars.add(CLIENT_ID_TEXT, tokenRequest.getClientId());
+            formVars.add(CLIENT_SECRET_TEXT, tokenRequest.getClientSecret());
             String url = client.getKeycloakUrl() + SUB_PATH + client.getRealm() + "/protocol/openid-connect/token";
             String response = restClient.post(url, headers, formVars, String.class, true);
             return gson.fromJson(response, new TypeToken<KeycloakTokenDto>() {
@@ -135,18 +158,10 @@ public class KeycloakServiceImpl implements KeycloakService {
     }
 
     @Override
-    public boolean logout(KeycloakTokenDto token, AuthClientDao client) {
+    public boolean logout(String idToken, AuthClientDao client) {
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            headers.add(AUTHORISATION_TEXT, token.getAccessToken());
-            headers.add(CHARSET_TEXT, CHARSET_VALUE);
-            MultiValueMap<String, String> formVars = new LinkedMultiValueMap<>();
-            formVars.add(CLIENT_ID_TEXT, client.getClientKey());
-            formVars.add(CLIENT_SECRET_TEXT, client.getClientAuthSecret());
-            formVars.add(REFRESH_TOKEN_TEXT, token.getRefreshToken());
-            String url = client.getKeycloakUrl() + SUB_PATH + client.getRealm() + "/protocol/openid-connect/logout";
-            String response = restClient.post(url, headers, formVars, String.class, true);
+            String url = client.getKeycloakUrl() + SUB_PATH + client.getRealm() + "/protocol/openid-connect/logout?id_token_hint="+idToken;
+            String response = restClient.get(url,new HttpHeaders(), String.class, true);
             log.info("Response: {}", response);
             return true;
         } catch (Exception e) {
