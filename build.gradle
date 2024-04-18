@@ -69,7 +69,7 @@ dependencies {
 	} else if (System.getenv("ENV") == 'staging') {
 		implementation 'com.goev.db:auth-db-staging:1.0'
 		implementation 'com.goev:lib-staging:1.0-SNAPSHOT'
-	} else if (System.getenv("ENV") == 'prod') {
+	} else if (System.getenv("ENV") == 'production') {
 		implementation 'com.goev.db:auth-db-prod:1.0'
 		implementation 'com.goev:lib-prod:1.0-SNAPSHOT'
 	}
