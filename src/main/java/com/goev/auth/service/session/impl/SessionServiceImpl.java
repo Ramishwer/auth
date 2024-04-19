@@ -263,6 +263,7 @@ public class SessionServiceImpl implements SessionService {
             credentialDao.setAuthClientId(clientDao.getId());
             credentialDao.setAuthCredentialTypeId(credentialTypeDao.getId());
             credentialDao.setAuthUserId(authUser.getId());
+            credentialDao.setAuthKey(credentialDao.getUuid());
             credentialDao.setAuthCredentialTypeId(credentialTypeDao.getId());
             credentialDao = authUserCredentialRepository.save(credentialDao);
             keycloakId = keycloakService.addUser(credentialDao, clientDao);
@@ -272,7 +273,7 @@ public class SessionServiceImpl implements SessionService {
 
         }
 
-        credentialDao.setAuthKey(credentialDao.getUuid());
+
         String secret = "123456";
         credentialDao.setAuthSecret(Md5Utils.getMd5(secret));
         credentialDao = authUserCredentialRepository.update(credentialDao);

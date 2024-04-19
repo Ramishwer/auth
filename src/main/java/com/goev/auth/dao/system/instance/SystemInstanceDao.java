@@ -12,6 +12,7 @@ import lombok.*;
 public class SystemInstanceDao extends BaseDao {
     private String name;
     private String hostname;
+    private Integer organizationId;
 }
 
 

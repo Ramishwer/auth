@@ -11,4 +11,5 @@ import lombok.*;
 public class AuthCredentialTypeDao extends BaseDao {
     private String name;
     private String description;
+    private Integer organizationId;
 }

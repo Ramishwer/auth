@@ -12,6 +12,7 @@ import lombok.*;
 public class AuthUserDao extends BaseDao {
     private String phoneNumber;
     private String email;
+    private Integer organizationId;
 }
 
 

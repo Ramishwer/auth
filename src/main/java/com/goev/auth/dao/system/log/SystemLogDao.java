@@ -21,6 +21,7 @@ public class SystemLogDao extends BaseDao {
     private String requestHeaders;
     private String responseStatus;
     private String log;
+    private Integer organizationId;
 }
 
 

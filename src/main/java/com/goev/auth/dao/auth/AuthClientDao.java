@@ -16,4 +16,5 @@ public class AuthClientDao extends BaseDao {
     private String keycloakAdminKey;
     private String keycloakAdminSecret;
     private Boolean isUserRegistrationAllowed;
+    private Integer organizationId;
 }

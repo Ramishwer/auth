@@ -14,4 +14,5 @@ public class SystemPropertyDao extends BaseDao {
     private String propertyDescription;
     private String propertyType;
     private String propertyValue;
+    private Integer organizationId;
 }

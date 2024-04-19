@@ -18,6 +18,7 @@ public class AuthUserCredentialDao extends BaseDao {
     private Integer authClientId;
     private DateTime expiryTime;
     private Integer authCredentialTypeId;
+    private Integer organizationId;
 }
 
 
