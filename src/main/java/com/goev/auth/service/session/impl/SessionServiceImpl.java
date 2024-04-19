@@ -1,6 +1,7 @@
 package com.goev.auth.service.session.impl;
 
 
+import com.goev.auth.dao.OrganizationDao;
 import com.goev.auth.dao.auth.AuthClientCredentialTypeMappingDao;
 import com.goev.auth.dao.auth.AuthClientDao;
 import com.goev.auth.dao.auth.AuthCredentialTypeDao;
@@ -17,6 +18,7 @@ import com.goev.auth.dto.session.SessionDto;
 import com.goev.auth.repository.auth.AuthClientCredentialTypeMappingRepository;
 import com.goev.auth.repository.auth.AuthClientRepository;
 import com.goev.auth.repository.auth.AuthCredentialTypeRepository;
+import com.goev.auth.repository.organization.OrganizationRepository;
 import com.goev.auth.repository.user.AuthUserCredentialRepository;
 import com.goev.auth.repository.user.AuthUserRepository;
 import com.goev.auth.repository.user.AuthUserSessionRepository;
@@ -40,6 +42,7 @@ public class SessionServiceImpl implements SessionService {
     private final AuthClientRepository authClientRepository;
     private final AuthCredentialTypeRepository authCredentialTypeRepository;
     private final AuthClientCredentialTypeMappingRepository authClientCredentialTypeMappingRepository;
+    private final OrganizationRepository organizationRepository;
 
     @Override
     public SessionDto createSession(AuthCredentialDto credentials) {
@@ -83,6 +86,8 @@ public class SessionServiceImpl implements SessionService {
         session.setRefreshExpiresIn(token.getRefreshExpiresIn());
         session.setIdToken(token.getIdToken());
         session = authUserSessionRepository.save(session);
+        OrganizationDao organizationDao = organizationRepository.findById(clientDao.getOrganizationId());
+
         return SessionDto.builder()
                 .accessToken(token.getAccessToken())
                 .refreshToken(token.getRefreshToken())
@@ -90,6 +95,7 @@ public class SessionServiceImpl implements SessionService {
                 .expiresIn(session.getExpiresIn())
                 .refreshExpiresIn(session.getRefreshExpiresIn())
                 .uuid(session.getUuid())
+                .organizationUUID(organizationDao.getUuid())
                 .build();
     }
 
@@ -123,6 +129,8 @@ public class SessionServiceImpl implements SessionService {
         session.setRefreshExpiresIn(token.getRefreshExpiresIn());
         session.setIdToken(token.getIdToken());
         session = authUserSessionRepository.save(session);
+        OrganizationDao organizationDao = organizationRepository.findById(clientDao.getOrganizationId());
+
         return SessionDto.builder()
                 .accessToken(token.getAccessToken())
                 .refreshToken(token.getRefreshToken())
@@ -130,6 +138,7 @@ public class SessionServiceImpl implements SessionService {
                 .expiresIn(session.getExpiresIn())
                 .refreshExpiresIn(session.getRefreshExpiresIn())
                 .uuid(session.getUuid())
+                .organizationUUID(organizationDao.getUuid())
                 .build();
     }
 
@@ -160,12 +169,14 @@ public class SessionServiceImpl implements SessionService {
 
         if (user == null)
             throw new ResponseException("Invalid Credentials");
+        OrganizationDao organizationDao = organizationRepository.findById(clientDao.getOrganizationId());
 
         return SessionDto.builder()
                 .accessToken(token.getAccessToken())
                 .refreshToken(token.getRefreshToken())
                 .uuid(newSession.getUuid())
                 .authUUID(user.getUuid())
+                .organizationUUID(organizationDao.getUuid())
                 .build();
     }
 
@@ -186,6 +197,10 @@ public class SessionServiceImpl implements SessionService {
         if (userDetailsDto == null)
             throw new ResponseException("Invalid Access Token");
         AuthUserDao user = authUserRepository.findById(userCredentialDao.getAuthUserId());
+        if (user == null)
+            throw new ResponseException("User does not exist");
+
+        OrganizationDao organizationDao = organizationRepository.findById(clientDao.getOrganizationId());
 
         return SessionDetailsDto.builder()
                 .details(SessionDto.builder()
@@ -195,6 +210,7 @@ public class SessionServiceImpl implements SessionService {
                         .uuid(session.getUuid())
                         .phone(user.getPhoneNumber())
                         .authUUID(user.getUuid())
+                        .organizationUUID(organizationDao.getUuid())
                         .build())
                 .uuid(session.getUuid()).build();
     }
