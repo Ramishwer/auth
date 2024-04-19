@@ -1,6 +1,9 @@
 package com.goev.auth.config.interceptor;
 
 
+import com.goev.auth.dao.auth.AuthClientDao;
+import com.goev.auth.repository.auth.AuthClientRepository;
+import com.goev.auth.utilities.RequestContext;
 import com.goev.lib.exceptions.ResponseException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,6 +20,7 @@ import java.util.Base64;
 @Slf4j
 @AllArgsConstructor
 public class BasicAuthenticationInterceptor implements HandlerInterceptor {
+    private final AuthClientRepository authClientRepository;
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (HttpMethod.OPTIONS.name().equals(request.getMethod())) {
@@ -41,8 +45,11 @@ public class BasicAuthenticationInterceptor implements HandlerInterceptor {
         String clientId = decodedString.split(":")[0];
         String clientSecret = decodedString.split(":")[1];
 
-        request.setAttribute("clientId",clientId);
-        request.setAttribute("clientSecret",clientSecret);
+        AuthClientDao clientDao = authClientRepository.findByClientIdAndClientSecret(clientId, clientSecret);
+        if (clientDao == null)
+            throw new ResponseException("Invalid Client");
+        request.setAttribute("client",clientDao);
+        request.setAttribute("organizationId",clientDao.getOrganizationId());
 
         /** Code to Authenticate */
 

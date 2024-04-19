@@ -22,6 +22,7 @@ public class JooqAutoInsertUpdateListener implements RecordListener {
     public static final String UPDATED_BY = "updated_by";
     public static final String API_SOURCE = "api_source";
     public static final String UUID_KEY = "uuid";
+    public static final String ORGANIZATION_ID_KEY = "organization_id";
 
     @Override
     public void insertStart(RecordContext ctx) {
@@ -52,6 +53,9 @@ public class JooqAutoInsertUpdateListener implements RecordListener {
 
         if (rowData.field(UUID_KEY) != null)
             rowData.set((Field<? super String>) rowData.field(UUID_KEY), UUID.randomUUID().toString());
+
+        if (rowData.field(ORGANIZATION_ID_KEY) != null)
+            rowData.set((Field<? super String>) rowData.field(ORGANIZATION_ID_KEY),RequestContext.getOrganizationId());
     }
 
     @Override

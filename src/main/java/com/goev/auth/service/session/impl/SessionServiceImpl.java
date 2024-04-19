@@ -44,10 +44,7 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public SessionDto createSession(AuthCredentialDto credentials) {
 
-        String clientId = RequestContext.getClientId();
-        String clientSecret = RequestContext.getClientSecret();
-
-        AuthClientDao clientDao = authClientRepository.findByClientIdAndClientSecret(clientId, clientSecret);
+        AuthClientDao clientDao = RequestContext.getClient();
         if (clientDao == null)
             throw new ResponseException("Invalid Client");
 
@@ -98,9 +95,7 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public SessionDto createSession(ExchangeTokenRequestDto exchangeTokenRequest) {
-        String clientId = RequestContext.getClientId();
-        String clientSecret = RequestContext.getClientSecret();
-        AuthClientDao clientDao = authClientRepository.findByClientIdAndClientSecret(clientId, clientSecret);
+        AuthClientDao clientDao = RequestContext.getClient();
         if (clientDao == null)
             throw new ResponseException("Invalid Client");
 
@@ -141,9 +136,7 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public SessionDto refreshSessionForSessionUUID(String sessionUUID) {
 
-        String clientId = RequestContext.getClientId();
-        String clientSecret = RequestContext.getClientSecret();
-        AuthClientDao clientDao = authClientRepository.findByClientIdAndClientSecret(clientId, clientSecret);
+        AuthClientDao clientDao = RequestContext.getClient();
         if (clientDao == null)
             throw new ResponseException("Invalid Client");
 
@@ -227,10 +220,7 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public AuthCredentialDto getSessionForSessionType(String phoneNumber, String credentialTypeUUID) {
 
-        String clientId = RequestContext.getClientId();
-        String clientSecret = RequestContext.getClientSecret();
-
-        AuthClientDao clientDao = authClientRepository.findByClientIdAndClientSecret(clientId, clientSecret);
+        AuthClientDao clientDao = RequestContext.getClient();
         if (clientDao == null)
             throw new ResponseException("Invalid Client");
 
