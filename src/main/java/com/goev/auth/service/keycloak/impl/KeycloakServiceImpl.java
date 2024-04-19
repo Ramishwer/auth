@@ -123,6 +123,7 @@ public class KeycloakServiceImpl implements KeycloakService {
         user.setFirstName(client.getClientKey().toUpperCase());
         user.setLastName(""+authUserCredentialDao.getAuthUserId());
         user.setUsername(authUserCredentialDao.getAuthKey());
+        user.setEmailVerified(true);
         UsersResource usersResource = getInstance(client).realm(client.getRealm()).users();
         return CreatedResponseUtil.getCreatedId(usersResource.create(user));
 
