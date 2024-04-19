@@ -44,13 +44,13 @@ public class RequestContext {
         return refreshToken;
     }
 
-    public static String getOrganizationId() {
+    public static Integer getOrganizationId() {
         ServletRequestAttributes requestAttributes = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes());
-        String organizationId = null;
+        Integer organizationId = null;
         if (requestAttributes != null) {
             HttpServletRequest request = requestAttributes.getRequest();
             if (request.getAttribute("organizationId") != null)
-                organizationId = (String) request.getAttribute("organizationId");
+                organizationId = (Integer) request.getAttribute("organizationId");
 
         }
         return organizationId;
