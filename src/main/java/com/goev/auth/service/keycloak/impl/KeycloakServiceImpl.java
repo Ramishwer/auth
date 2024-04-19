@@ -124,6 +124,7 @@ public class KeycloakServiceImpl implements KeycloakService {
         user.setLastName(authUserCredentialDao.getUuid());
         user.setUsername(authUserCredentialDao.getAuthKey());
         user.setEmailVerified(true);
+        user.setEnabled(true);
         UsersResource usersResource = getInstance(client).realm(client.getRealm()).users();
         return CreatedResponseUtil.getCreatedId(usersResource.create(user));
 
