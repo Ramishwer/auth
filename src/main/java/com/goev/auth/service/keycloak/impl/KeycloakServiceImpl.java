@@ -120,8 +120,8 @@ public class KeycloakServiceImpl implements KeycloakService {
     @Override
     public String addUser(AuthUserCredentialDao authUserCredentialDao, AuthClientDao client) {
         UserRepresentation user = new UserRepresentation();
-        user.setFirstName(client.getClientKey().toUpperCase());
-        user.setLastName(""+authUserCredentialDao.getAuthUserId());
+        user.setFirstName("AuthUser-"+authUserCredentialDao.getAuthUserId());
+        user.setLastName(authUserCredentialDao.getUuid());
         user.setUsername(authUserCredentialDao.getAuthKey());
         user.setEmailVerified(true);
         UsersResource usersResource = getInstance(client).realm(client.getRealm()).users();
