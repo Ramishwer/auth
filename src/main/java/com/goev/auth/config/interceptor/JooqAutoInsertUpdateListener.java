@@ -62,6 +62,17 @@ public class JooqAutoInsertUpdateListener implements RecordListener {
     public void updateStart(RecordContext ctx) {
         String authUUID = ApplicationContext.getAuthUUID();
         Record rowData = ctx.record();
+
+        Record rowData = ctx.record();
+        if (rowData.field(CREATED_ON) != null)
+            rowData.reset(CREATED_ON);
+
+        if (rowData.field(CREATED_BY) != null)
+            rowData.reset(CREATED_BY);
+
+        if (rowData.field(CREATED_TIMESTAMP) != null)
+            rowData.reset(CREATED_TIMESTAMP);
+
         if (rowData.field(UPDATED_TIMESTAMP) != null)
             rowData.set((Field<? super DateTime>) rowData.field(UPDATED_TIMESTAMP), DateTime.now());
 
