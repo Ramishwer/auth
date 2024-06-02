@@ -30,7 +30,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
                         "/swagger-ui.html",
                         "/webjars/**",
                         "/swagger-ui/**",
-                        "/api/v1/session-management/sessions/**"
+                        "/api/v1/session-management/sessions/**",
+                        "/api/v1/internal/events"
                 );
         registry.addInterceptor(basicAuthenticationInterceptor).addPathPatterns(
                         "/api/v1/session-management/sessions",
@@ -48,7 +49,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
                         "/api/v1/session-management/sessions",
                         "/api/v1/session-management/sessions/credential-types/**",
                         "/api/v1/session-management/sessions/**/token",
-                        "/api/v1/session-management/sessions/tokens"
+                        "/api/v1/session-management/sessions/tokens",
+                        "/api/v1/internal/events"
                 );
     }
 }
