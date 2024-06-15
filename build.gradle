@@ -60,9 +60,6 @@ dependencies {
 	implementation 'org.jboss.resteasy:resteasy-jackson2-provider:6.2.8.Final'
 	implementation 'org.jboss.resteasy:resteasy-client:6.2.8.Final'
 
-
-
-
 	if (System.getenv("ENV") == 'local' || System.getenv("ENV") == null) {
 		implementation 'com.goev.db:auth-db-local:1.0'
 		implementation 'com.goev:lib-local:1.0-SNAPSHOT'

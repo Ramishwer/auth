@@ -24,6 +24,7 @@ import com.goev.auth.repository.user.AuthUserRepository;
 import com.goev.auth.repository.user.AuthUserSessionRepository;
 import com.goev.auth.service.keycloak.KeycloakService;
 import com.goev.auth.service.session.SessionService;
+import com.goev.auth.utilities.MessageUtils;
 import com.goev.auth.utilities.RequestContext;
 import com.goev.lib.exceptions.ResponseException;
 import com.goev.lib.utilities.Md5Utils;
@@ -43,6 +44,7 @@ public class SessionServiceImpl implements SessionService {
     private final AuthCredentialTypeRepository authCredentialTypeRepository;
     private final AuthClientCredentialTypeMappingRepository authClientCredentialTypeMappingRepository;
     private final OrganizationRepository organizationRepository;
+    private final MessageUtils messageUtils;
 
     @Override
     public SessionDto createSession(AuthCredentialDto credentials) {
@@ -284,6 +286,7 @@ public class SessionServiceImpl implements SessionService {
         credentialDao.setAuthSecret(Md5Utils.getMd5(secret));
         credentialDao = authUserCredentialRepository.update(credentialDao);
         keycloakService.updateUser(credentialDao, clientDao);
+        messageUtils.sendMessage(clientDao,phoneNumber,secret);
         return AuthCredentialDto.builder()
                 .authSecret(secret)
                 .authKey(phoneNumber)
