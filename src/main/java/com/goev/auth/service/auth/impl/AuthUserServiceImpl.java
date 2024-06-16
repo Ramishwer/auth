@@ -1,6 +1,5 @@
 package com.goev.auth.service.auth.impl;
 
-import com.goev.auth.constant.ApplicationConstants;
 import com.goev.auth.dao.OrganizationDao;
 import com.goev.auth.dao.client.AuthClientCredentialTypeMappingDao;
 import com.goev.auth.dao.client.AuthClientDao;
@@ -19,6 +18,7 @@ import com.goev.auth.service.keycloak.KeycloakService;
 import com.goev.auth.utilities.RequestContext;
 import com.goev.auth.utilities.SecretGenerationUtils;
 import com.goev.lib.exceptions.ResponseException;
+import com.goev.lib.utilities.Md5Utils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -64,26 +64,26 @@ public class AuthUserServiceImpl implements AuthUserService {
         if (user.getPhoneNumber() == null)
             throw new ResponseException("No phone number present");
 
-        AuthUserDao existingUser = authUserRepository.findByPhoneNumber(user.getPhoneNumber());
-        if (existingUser != null)
-            throw new ResponseException("User with phone already present");
+        AuthUserDao authUserDao = authUserRepository.findByPhoneNumber(user.getPhoneNumber());
 
-
-        AuthUserDao authUserDao = new AuthUserDao();
-
-        authUserDao.setPhoneNumber(user.getPhoneNumber());
-        authUserDao.setEmail(user.getEmail());
-        authUserDao.setOrganizationId(organizationDao.getId());
-
-        authUserDao = authUserRepository.save(authUserDao);
+        if (authUserDao == null) {
+            authUserDao = new AuthUserDao();
+            authUserDao.setPhoneNumber(user.getPhoneNumber());
+            authUserDao.setEmail(user.getEmail());
+            authUserDao.setOrganizationId(organizationDao.getId());
+            authUserDao = authUserRepository.save(authUserDao);
+        }
 
         for (AuthClientCredentialTypeMappingDao mappingDao : credentialTypeMappingDao) {
 
-            AuthCredentialTypeDao credentialTypeDao = authCredentialTypeRepository.findById(mappingDao.getId());
+            AuthCredentialTypeDao credentialTypeDao = authCredentialTypeRepository.findById(mappingDao.getAuthCredentialTypeId());
             if (credentialTypeDao == null)
                 continue;
 
-            createCredentials(credentialTypeDao, authUserDao, organizationDao, requestClient);
+
+            AuthUserCredentialDao credentialDao = authUserCredentialRepository.findByAuthUserIdAndCredentialTypeId(authUserDao.getId(), credentialTypeDao.getId());
+            if (credentialDao == null)
+                createCredentials(credentialTypeDao, authUserDao, organizationDao, requestClient);
 
         }
 
@@ -101,11 +101,11 @@ public class AuthUserServiceImpl implements AuthUserService {
         credential.setOrganizationId(organizationDao.getId());
         credential.setAuthKey(authKey);
         credential.setUuid(authKey);
-        credential.setAuthSecret(authSecret);
+        credential.setAuthSecret(Md5Utils.getMd5(authSecret));
 
-        String keycloakId = keycloakService.addUser(credential, clientDao,authUserDao.getEmail());
+        String keycloakId = keycloakService.addUser(credential, clientDao, authUserDao.getEmail());
 
-        if(keycloakId == null) {
+        if (keycloakId != null) {
             credential.setKeycloakUuid(keycloakId);
             authUserCredentialRepository.save(credential);
         }
