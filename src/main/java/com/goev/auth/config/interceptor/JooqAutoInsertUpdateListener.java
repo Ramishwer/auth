@@ -36,25 +36,25 @@ public class JooqAutoInsertUpdateListener implements RecordListener {
         if (rowData.field(CREATED_ON) != null && rowData.get(rowData.field(CREATED_ON)) == null)
             rowData.set((Field<? super DateTime>) rowData.field(CREATED_ON), DateTime.now());
 
-        if (rowData.field(UPDATED_TIMESTAMP) != null)
+        if (rowData.field(UPDATED_TIMESTAMP) != null && rowData.get(rowData.field(UPDATED_TIMESTAMP)) == null)
             rowData.set((Field<? super DateTime>) rowData.field(UPDATED_TIMESTAMP), DateTime.now());
 
-        if (rowData.field(UPDATED_ON) != null)
+        if (rowData.field(UPDATED_ON) != null && rowData.get(rowData.field(UPDATED_ON)) == null)
             rowData.set((Field<? super DateTime>) rowData.field(UPDATED_ON), DateTime.now());
 
         if (rowData.field(CREATED_BY) != null && rowData.get(rowData.field(CREATED_BY)) == null)
             rowData.set((Field<? super String>) rowData.field(CREATED_BY), authUUID);
 
-        if (rowData.field(UPDATED_BY) != null)
+        if (rowData.field(UPDATED_BY) != null && rowData.get(rowData.field(CREATED_ON)) == null)
             rowData.set((Field<? super String>) rowData.field(UPDATED_BY), authUUID);
 
-        if (rowData.field(API_SOURCE) != null)
+        if (rowData.field(API_SOURCE) != null && rowData.get(rowData.field(CREATED_ON)) == null )
             rowData.set((Field<? super String>) rowData.field(API_SOURCE), ApplicationContext.getApplicationSource());
 
-        if (rowData.field(UUID_KEY) != null)
+        if (rowData.field(UUID_KEY) != null && rowData.get(rowData.field(UUID_KEY)) == null)
             rowData.set((Field<? super String>) rowData.field(UUID_KEY), UUID.randomUUID().toString());
 
-        if (rowData.field(ORGANIZATION_ID_KEY) != null && RequestContext.getOrganizationId() != null)
+        if (rowData.field(ORGANIZATION_ID_KEY) != null && RequestContext.getOrganizationId() != null && rowData.get(rowData.field(ORGANIZATION_ID_KEY)) == null)
             rowData.set((Field<? super String>) rowData.field(ORGANIZATION_ID_KEY), RequestContext.getOrganizationId().toString());
     }
 
@@ -72,16 +72,16 @@ public class JooqAutoInsertUpdateListener implements RecordListener {
         if (rowData.field(CREATED_TIMESTAMP) != null)
             rowData.reset(CREATED_TIMESTAMP);
 
-        if (rowData.field(UPDATED_TIMESTAMP) != null)
+        if (rowData.field(UPDATED_TIMESTAMP) != null && rowData.get(rowData.field(UPDATED_TIMESTAMP)) == null)
             rowData.set((Field<? super DateTime>) rowData.field(UPDATED_TIMESTAMP), DateTime.now());
 
-        if (rowData.field(UPDATED_ON) != null)
+        if (rowData.field(UPDATED_ON) != null && rowData.get(rowData.field(UPDATED_ON)) == null)
             rowData.set((Field<? super DateTime>) rowData.field(UPDATED_ON), DateTime.now());
 
-        if (rowData.field(UPDATED_BY) != null)
+        if (rowData.field(UPDATED_BY) != null && rowData.get(rowData.field(UPDATED_BY)) == null)
             rowData.set((Field<? super String>) rowData.field(UPDATED_BY), authUUID);
 
-        if (rowData.field(API_SOURCE) != null)
+        if (rowData.field(API_SOURCE) != null && rowData.get(rowData.field(API_SOURCE)) == null)
             rowData.set((Field<? super String>) rowData.field(API_SOURCE), ApplicationContext.getApplicationSource());
     }
 }

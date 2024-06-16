@@ -73,7 +73,7 @@ public class SessionServiceImpl implements SessionService {
         if (credentialDao == null)
             throw new ResponseException("Invalid Credentials");
 
-        credentials.setAuthKey(credentialDao.getUuid());
+        credentials.setAuthKey(credentialDao.getAuthKey());
         credentials.setAuthSecret(Md5Utils.getMd5(credentials.getAuthSecret()));
 
         KeycloakTokenDto token = keycloakService.login(credentials, clientDao);
