@@ -102,6 +102,8 @@ public class AuthUserServiceImpl implements AuthUserService {
         credential.setAuthKey(authKey);
         credential.setUuid(authKey);
         credential.setAuthSecret(Md5Utils.getMd5(authSecret));
+        credential.setAuthCredentialTypeId(credentialTypeDao.getId());
+        credential.setAuthClientId(clientDao.getId());
 
         String keycloakId = keycloakService.addUser(credential, clientDao, authUserDao.getEmail());
 
