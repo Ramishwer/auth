@@ -1,7 +1,7 @@
 package com.goev.auth.utilities;
 
 import com.goev.auth.constant.ApplicationConstants;
-import com.goev.auth.dao.auth.AuthClientDao;
+import com.goev.auth.dao.client.AuthClientDao;
 import com.goev.auth.dto.MessageResponseDto;
 import com.goev.lib.services.RestClient;
 import com.google.gson.Gson;
@@ -24,12 +24,12 @@ public class MessageUtils {
     private final RestClient restClient;
 
     public boolean sendMessage(AuthClientDao clientDao, String mobileNumber, String otp) {
-        if(Boolean.FALSE.equals(ApplicationConstants.IS_MESSAGE_ENABLED)){
+        if (Boolean.FALSE.equals(ApplicationConstants.IS_MESSAGE_ENABLED)) {
             log.info("Messages Disabled");
             return false;
         }
 
-        if(Boolean.TRUE.equals(ApplicationConstants.IS_WHITE_LISTING_ENABLED) && !ApplicationConstants.WHITE_LIST_NUMBERS.contains(mobileNumber)){
+        if (Boolean.TRUE.equals(ApplicationConstants.IS_WHITE_LISTING_ENABLED) && !ApplicationConstants.WHITE_LIST_NUMBERS.contains(mobileNumber)) {
             log.info("Mobile number whitelisting enabled and mobile number not present in list");
             return false;
         }
@@ -42,10 +42,10 @@ public class MessageUtils {
             headers.setAccept(accept);
             Map<String, String> params = new TreeMap<>();
             params.put("OTP", otp);
-            String templateId= "665c1f8bd6fc056ab7739913";
-            if(Boolean.TRUE.equals(clientDao.getIsUserRegistrationAllowed()))
-                templateId= "665c1e99d6fc0539af6c53a2";
-            String response = restClient.post("https://control.msg91.com/api/v5/otp?mobile=91" + mobileNumber + "&template_id=" +templateId , headers, params, String.class, true, false);
+            String templateId = "665c1f8bd6fc056ab7739913";
+            if (Boolean.TRUE.equals(clientDao.getIsUserRegistrationAllowed()))
+                templateId = "665c1e99d6fc0539af6c53a2";
+            String response = restClient.post("https://control.msg91.com/api/v5/otp?mobile=91" + mobileNumber + "&template_id=" + templateId, headers, params, String.class, true, false);
             MessageResponseDto responseDto = new Gson().fromJson(response, new TypeToken<MessageResponseDto>() {
             }.getType());
             return responseDto.getType().equals("success");

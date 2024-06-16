@@ -10,8 +10,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.util.Base64;
-
 
 @Component
 @Slf4j

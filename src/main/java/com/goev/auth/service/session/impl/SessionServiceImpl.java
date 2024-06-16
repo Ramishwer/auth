@@ -1,15 +1,16 @@
 package com.goev.auth.service.session.impl;
 
 
+import com.goev.auth.constant.ApplicationConstants;
 import com.goev.auth.dao.OrganizationDao;
-import com.goev.auth.dao.auth.AuthClientCredentialTypeMappingDao;
-import com.goev.auth.dao.auth.AuthClientDao;
-import com.goev.auth.dao.auth.AuthCredentialTypeDao;
+import com.goev.auth.dao.client.AuthClientCredentialTypeMappingDao;
+import com.goev.auth.dao.client.AuthClientDao;
+import com.goev.auth.dao.client.AuthCredentialTypeDao;
 import com.goev.auth.dao.user.AuthUserCredentialDao;
 import com.goev.auth.dao.user.AuthUserDao;
 import com.goev.auth.dao.user.AuthUserSessionDao;
-import com.goev.auth.dto.auth.AuthCredentialDto;
-import com.goev.auth.dto.auth.AuthCredentialTypeDto;
+import com.goev.auth.dto.client.AuthCredentialDto;
+import com.goev.auth.dto.client.AuthCredentialTypeDto;
 import com.goev.auth.dto.keycloak.KeycloakTokenDto;
 import com.goev.auth.dto.keycloak.KeycloakUserDetailsDto;
 import com.goev.auth.dto.session.ExchangeTokenRequestDto;
@@ -26,11 +27,14 @@ import com.goev.auth.service.keycloak.KeycloakService;
 import com.goev.auth.service.session.SessionService;
 import com.goev.auth.utilities.MessageUtils;
 import com.goev.auth.utilities.RequestContext;
+import com.goev.auth.utilities.SecretGenerationUtils;
 import com.goev.lib.exceptions.ResponseException;
 import com.goev.lib.utilities.Md5Utils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -112,13 +116,13 @@ public class SessionServiceImpl implements SessionService {
         if (userDetailsDto == null)
             throw new ResponseException("Invalid Access Token");
         AuthUserCredentialDao userCredentialDao = authUserCredentialRepository.findByKeycloakId(userDetailsDto.getSub());
-        if(userCredentialDao == null)
+        if (userCredentialDao == null)
             throw new ResponseException("Invalid Credential");
 
         AuthUserDao user = authUserRepository.findById(userCredentialDao.getAuthUserId());
 
         KeycloakTokenDto token = keycloakService.getExchangeTokenForToken(exchangeTokenRequest, clientDao);
-        if(token == null)
+        if (token == null)
             throw new ResponseException("Invalid Credential");
 
         AuthUserSessionDao session = new AuthUserSessionDao();
@@ -156,7 +160,7 @@ public class SessionServiceImpl implements SessionService {
             throw new ResponseException("Invalid Access Token");
 
         AuthUserSessionDao session = authUserSessionRepository.findByUUID(sessionUUID);
-        if(session == null)
+        if (session == null)
             throw new ResponseException("Session Expired");
         AuthUserSessionDao newSession = new AuthUserSessionDao();
         newSession.setAuthUserCredentialId(session.getAuthUserCredentialId());
@@ -185,11 +189,11 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public SessionDetailsDto getSessionDetails(String sessionUUID) {
         AuthUserSessionDao session = authUserSessionRepository.findByUUID(sessionUUID);
-        if(session == null)
+        if (session == null)
             throw new ResponseException("Session Expired");
 
         AuthUserCredentialDao userCredentialDao = authUserCredentialRepository.findById(session.getAuthUserCredentialId());
-        if(userCredentialDao == null)
+        if (userCredentialDao == null)
             throw new ResponseException("Invalid Credential");
 
         AuthClientDao clientDao = authClientRepository.findById(userCredentialDao.getAuthClientId());
@@ -220,11 +224,11 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public Boolean deleteSession(String sessionUUID) {
         AuthUserSessionDao session = authUserSessionRepository.findByUUID(sessionUUID);
-        if(session == null)
+        if (session == null)
             throw new ResponseException("Session Expired");
 
         AuthUserCredentialDao userCredentialDao = authUserCredentialRepository.findById(session.getAuthUserCredentialId());
-        if(userCredentialDao == null)
+        if (userCredentialDao == null)
             throw new ResponseException("Invalid Credential");
 
         AuthClientDao clientDao = authClientRepository.findById(userCredentialDao.getAuthClientId());
@@ -250,6 +254,8 @@ public class SessionServiceImpl implements SessionService {
         if (mapping == null)
             throw new ResponseException("Invalid Credential Type");
 
+        if (!ApplicationConstants.PHONE_NUMBER_CREDENTIAL_TYPES.contains(credentialTypeDao.getId()))
+            throw new ResponseException("Invalid Credential Type");
         AuthUserDao authUser = authUserRepository.findByPhoneNumber(phoneNumber);
 
         String keycloakId = null;
@@ -266,12 +272,14 @@ public class SessionServiceImpl implements SessionService {
         AuthUserCredentialDao credentialDao = authUserCredentialRepository.findByAuthUserIdAndCredentialTypeId(authUser.getId(), credentialTypeDao.getId());
         if (credentialDao == null) {
 
+            String uuid = UUID.randomUUID().toString();
             credentialDao = new AuthUserCredentialDao();
 
             credentialDao.setAuthClientId(clientDao.getId());
             credentialDao.setAuthCredentialTypeId(credentialTypeDao.getId());
             credentialDao.setAuthUserId(authUser.getId());
-            credentialDao.setAuthKey(credentialDao.getUuid());
+            credentialDao.setAuthKey(uuid);
+            credentialDao.setUuid(uuid);
             credentialDao.setAuthCredentialTypeId(credentialTypeDao.getId());
             credentialDao = authUserCredentialRepository.save(credentialDao);
             keycloakId = keycloakService.addUser(credentialDao, clientDao);
@@ -282,13 +290,15 @@ public class SessionServiceImpl implements SessionService {
         }
 
 
-        String secret = "123456";
+        String secret = SecretGenerationUtils.getPhoneSecret();
+
+
         credentialDao.setAuthSecret(Md5Utils.getMd5(secret));
         credentialDao = authUserCredentialRepository.update(credentialDao);
         keycloakService.updateUser(credentialDao, clientDao);
-        messageUtils.sendMessage(clientDao,phoneNumber,secret);
-        return AuthCredentialDto.builder()
-                .authSecret(secret)
+        messageUtils.sendMessage(clientDao, phoneNumber, secret);
+
+        AuthCredentialDto result = AuthCredentialDto.builder()
                 .authKey(phoneNumber)
                 .authCredentialType(AuthCredentialTypeDto.builder()
                         .name(credentialTypeDao.getName())
@@ -296,5 +306,11 @@ public class SessionServiceImpl implements SessionService {
                         .build())
                 .authUUID(authUser.getUuid())
                 .build();
+
+        if (Boolean.TRUE.equals(ApplicationConstants.SHOW_SECRETS))
+            result.setAuthSecret(secret);
+        return result;
     }
+
+
 }

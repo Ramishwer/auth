@@ -7,7 +7,6 @@ import com.goev.record.auth.tables.records.AuthUsersRecord;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,7 +21,7 @@ public class AuthUserRepositoryImpl implements AuthUserRepository {
 
     @Override
     public AuthUserDao save(AuthUserDao user) {
-        AuthUsersRecord authUsersRecord =  context.newRecord(AUTH_USERS,user);
+        AuthUsersRecord authUsersRecord = context.newRecord(AUTH_USERS, user);
         authUsersRecord.store();
         user.setId(authUsersRecord.getId());
         user.setUuid(authUsersRecord.getUuid());
@@ -31,24 +30,43 @@ public class AuthUserRepositoryImpl implements AuthUserRepository {
 
     @Override
     public AuthUserDao update(AuthUserDao user) {
-        AuthUsersRecord authUsersRecord =  context.newRecord(AUTH_USERS,user);
+        AuthUsersRecord authUsersRecord = context.newRecord(AUTH_USERS, user);
         authUsersRecord.update();
+
+
+        user.setCreatedBy(authUsersRecord.getCreatedBy());
+        user.setUpdatedBy(authUsersRecord.getUpdatedBy());
+        user.setCreatedOn(authUsersRecord.getCreatedOn());
+        user.setUpdatedOn(authUsersRecord.getUpdatedOn());
+        user.setIsActive(authUsersRecord.getIsActive());
+        user.setState(authUsersRecord.getState());
+        user.setApiSource(authUsersRecord.getApiSource());
+        user.setNotes(authUsersRecord.getNotes());
         return user;
     }
 
     @Override
     public void delete(Integer id) {
-        context.update(AUTH_USERS).set(AUTH_USERS.STATE, RecordState.DELETED.name()).where(AUTH_USERS.ID.eq(id)).execute();
+        context.update(AUTH_USERS)
+                .set(AUTH_USERS.STATE, RecordState.DELETED.name())
+                .where(AUTH_USERS.ID.eq(id))
+                .and(AUTH_USERS.STATE.eq(RecordState.ACTIVE.name()))
+                .and(AUTH_USERS.IS_ACTIVE.eq(true))
+                .execute();
     }
 
     @Override
     public AuthUserDao findByUUID(String uuid) {
-        return context.selectFrom(AUTH_USERS).where(AUTH_USERS.UUID.eq(uuid)).fetchAnyInto(AuthUserDao.class);
+        return context.selectFrom(AUTH_USERS).where(AUTH_USERS.UUID.eq(uuid))
+                .and(AUTH_USERS.IS_ACTIVE.eq(true))
+                .fetchAnyInto(AuthUserDao.class);
     }
 
     @Override
     public AuthUserDao findById(Integer id) {
-        return context.selectFrom(AUTH_USERS).where(AUTH_USERS.ID.eq(id)).fetchAnyInto(AuthUserDao.class);
+        return context.selectFrom(AUTH_USERS).where(AUTH_USERS.ID.eq(id))
+                .and(AUTH_USERS.IS_ACTIVE.eq(true))
+                .fetchAnyInto(AuthUserDao.class);
     }
 
     @Override

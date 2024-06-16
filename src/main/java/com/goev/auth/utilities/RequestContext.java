@@ -1,12 +1,13 @@
 package com.goev.auth.utilities;
 
-import com.goev.auth.dao.auth.AuthClientDao;
+import com.goev.auth.dao.client.AuthClientDao;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 public class RequestContext {
-    private RequestContext(){}
+    private RequestContext() {
+    }
 
     public static AuthClientDao getClient() {
         ServletRequestAttributes requestAttributes = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes());

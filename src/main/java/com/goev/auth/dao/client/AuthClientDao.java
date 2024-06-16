@@ -1,4 +1,4 @@
-package com.goev.auth.dao.auth;
+package com.goev.auth.dao.client;
 
 import com.goev.lib.dao.BaseDao;
 import lombok.*;

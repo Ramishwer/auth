@@ -7,7 +7,6 @@ import com.goev.record.auth.tables.records.AuthUserSessionsRecord;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,7 +22,7 @@ public class AuthUserSessionRepositoryImpl implements AuthUserSessionRepository 
 
     @Override
     public AuthUserSessionDao save(AuthUserSessionDao session) {
-        AuthUserSessionsRecord authUserSessionsRecord =  context.newRecord(AUTH_USER_SESSIONS,session);
+        AuthUserSessionsRecord authUserSessionsRecord = context.newRecord(AUTH_USER_SESSIONS, session);
         authUserSessionsRecord.store();
         session.setId(authUserSessionsRecord.getId());
         session.setUuid(authUserSessionsRecord.getUuid());
@@ -32,24 +31,43 @@ public class AuthUserSessionRepositoryImpl implements AuthUserSessionRepository 
 
     @Override
     public AuthUserSessionDao update(AuthUserSessionDao session) {
-        AuthUserSessionsRecord authUserSessionsRecord =  context.newRecord(AUTH_USER_SESSIONS,session);
+        AuthUserSessionsRecord authUserSessionsRecord = context.newRecord(AUTH_USER_SESSIONS, session);
         authUserSessionsRecord.update();
+
+
+        session.setCreatedBy(authUserSessionsRecord.getCreatedBy());
+        session.setUpdatedBy(authUserSessionsRecord.getUpdatedBy());
+        session.setCreatedOn(authUserSessionsRecord.getCreatedOn());
+        session.setUpdatedOn(authUserSessionsRecord.getUpdatedOn());
+        session.setIsActive(authUserSessionsRecord.getIsActive());
+        session.setState(authUserSessionsRecord.getState());
+        session.setApiSource(authUserSessionsRecord.getApiSource());
+        session.setNotes(authUserSessionsRecord.getNotes());
         return session;
     }
 
     @Override
     public void delete(Integer id) {
-        context.update(AUTH_USER_SESSIONS).set(AUTH_USER_SESSIONS.STATE, RecordState.DELETED.name()).where(AUTH_USER_SESSIONS.ID.eq(id)).execute();
+        context.update(AUTH_USER_SESSIONS)
+                .set(AUTH_USER_SESSIONS.STATE, RecordState.DELETED.name())
+                .where(AUTH_USER_SESSIONS.ID.eq(id))
+                .and(AUTH_USER_SESSIONS.STATE.eq(RecordState.ACTIVE.name()))
+                .and(AUTH_USER_SESSIONS.IS_ACTIVE.eq(true))
+                .execute();
     }
 
     @Override
     public AuthUserSessionDao findByUUID(String uuid) {
-        return context.selectFrom(AUTH_USER_SESSIONS).where(AUTH_USER_SESSIONS.UUID.eq(uuid)).fetchAnyInto(AuthUserSessionDao.class);
+        return context.selectFrom(AUTH_USER_SESSIONS).where(AUTH_USER_SESSIONS.UUID.eq(uuid))
+                .and(AUTH_USER_SESSIONS.IS_ACTIVE.eq(true))
+                .fetchAnyInto(AuthUserSessionDao.class);
     }
 
     @Override
     public AuthUserSessionDao findById(Integer id) {
-        return context.selectFrom(AUTH_USER_SESSIONS).where(AUTH_USER_SESSIONS.ID.eq(id)).fetchAnyInto(AuthUserSessionDao.class);
+        return context.selectFrom(AUTH_USER_SESSIONS).where(AUTH_USER_SESSIONS.ID.eq(id))
+                .and(AUTH_USER_SESSIONS.IS_ACTIVE.eq(true))
+                .fetchAnyInto(AuthUserSessionDao.class);
     }
 
     @Override

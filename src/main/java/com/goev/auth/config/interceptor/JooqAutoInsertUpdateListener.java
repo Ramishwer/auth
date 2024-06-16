@@ -54,8 +54,8 @@ public class JooqAutoInsertUpdateListener implements RecordListener {
         if (rowData.field(UUID_KEY) != null)
             rowData.set((Field<? super String>) rowData.field(UUID_KEY), UUID.randomUUID().toString());
 
-        if (rowData.field(ORGANIZATION_ID_KEY) != null && RequestContext.getOrganizationId()!=null)
-            rowData.set((Field<? super String>) rowData.field(ORGANIZATION_ID_KEY),RequestContext.getOrganizationId().toString());
+        if (rowData.field(ORGANIZATION_ID_KEY) != null && RequestContext.getOrganizationId() != null)
+            rowData.set((Field<? super String>) rowData.field(ORGANIZATION_ID_KEY), RequestContext.getOrganizationId().toString());
     }
 
     @Override

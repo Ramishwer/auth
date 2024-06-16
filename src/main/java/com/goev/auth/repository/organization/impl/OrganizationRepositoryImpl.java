@@ -20,7 +20,7 @@ public class OrganizationRepositoryImpl implements OrganizationRepository {
 
     @Override
     public OrganizationDao save(OrganizationDao credential) {
-        OrganizationsRecord organizationsRecord =  context.newRecord(ORGANIZATIONS,credential);
+        OrganizationsRecord organizationsRecord = context.newRecord(ORGANIZATIONS, credential);
         organizationsRecord.store();
         credential.setId(organizationsRecord.getId());
         credential.setUuid(organizationsRecord.getUuid());
@@ -29,23 +29,42 @@ public class OrganizationRepositoryImpl implements OrganizationRepository {
 
     @Override
     public OrganizationDao update(OrganizationDao credential) {
-        OrganizationsRecord organizationsRecord =  context.newRecord(ORGANIZATIONS,credential);
+        OrganizationsRecord organizationsRecord = context.newRecord(ORGANIZATIONS, credential);
         organizationsRecord.update();
+
+
+        credential.setCreatedBy(organizationsRecord.getCreatedBy());
+        credential.setUpdatedBy(organizationsRecord.getUpdatedBy());
+        credential.setCreatedOn(organizationsRecord.getCreatedOn());
+        credential.setUpdatedOn(organizationsRecord.getUpdatedOn());
+        credential.setIsActive(organizationsRecord.getIsActive());
+        credential.setState(organizationsRecord.getState());
+        credential.setApiSource(organizationsRecord.getApiSource());
+        credential.setNotes(organizationsRecord.getNotes());
         return credential;
     }
 
     @Override
     public void delete(Integer id) {
-        context.update(ORGANIZATIONS).set(ORGANIZATIONS.STATE, RecordState.DELETED.name()).where(ORGANIZATIONS.ID.eq(id)).execute();
+        context.update(ORGANIZATIONS)
+                .set(ORGANIZATIONS.STATE, RecordState.DELETED.name())
+                .where(ORGANIZATIONS.ID.eq(id))
+                .and(ORGANIZATIONS.STATE.eq(RecordState.ACTIVE.name()))
+                .and(ORGANIZATIONS.IS_ACTIVE.eq(true))
+                .execute();
     }
 
     @Override
     public OrganizationDao findByUUID(String uuid) {
-        return context.selectFrom(ORGANIZATIONS).where(ORGANIZATIONS.UUID.eq(uuid)).fetchAnyInto(OrganizationDao.class);
+        return context.selectFrom(ORGANIZATIONS).where(ORGANIZATIONS.UUID.eq(uuid))
+                .and(ORGANIZATIONS.IS_ACTIVE.eq(true))
+                .fetchAnyInto(OrganizationDao.class);
     }
 
     @Override
     public OrganizationDao findById(Integer id) {
-        return context.selectFrom(ORGANIZATIONS).where(ORGANIZATIONS.ID.eq(id)).fetchAnyInto(OrganizationDao.class);
+        return context.selectFrom(ORGANIZATIONS).where(ORGANIZATIONS.ID.eq(id))
+                .and(ORGANIZATIONS.IS_ACTIVE.eq(true))
+                .fetchAnyInto(OrganizationDao.class);
     }
 }

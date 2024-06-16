@@ -7,7 +7,6 @@ import com.goev.record.auth.tables.records.AuthUserCredentialsRecord;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,7 +22,7 @@ public class AuthUserCredentialRepositoryImpl implements AuthUserCredentialRepos
 
     @Override
     public AuthUserCredentialDao save(AuthUserCredentialDao credential) {
-        AuthUserCredentialsRecord authUserCredentialsRecord =  context.newRecord(AUTH_USER_CREDENTIALS,credential);
+        AuthUserCredentialsRecord authUserCredentialsRecord = context.newRecord(AUTH_USER_CREDENTIALS, credential);
         authUserCredentialsRecord.store();
         credential.setId(authUserCredentialsRecord.getId());
         credential.setUuid(authUserCredentialsRecord.getUuid());
@@ -32,24 +31,43 @@ public class AuthUserCredentialRepositoryImpl implements AuthUserCredentialRepos
 
     @Override
     public AuthUserCredentialDao update(AuthUserCredentialDao credential) {
-        AuthUserCredentialsRecord authUserCredentialsRecord =  context.newRecord(AUTH_USER_CREDENTIALS,credential);
+        AuthUserCredentialsRecord authUserCredentialsRecord = context.newRecord(AUTH_USER_CREDENTIALS, credential);
         authUserCredentialsRecord.update();
+
+
+        credential.setCreatedBy(authUserCredentialsRecord.getCreatedBy());
+        credential.setUpdatedBy(authUserCredentialsRecord.getUpdatedBy());
+        credential.setCreatedOn(authUserCredentialsRecord.getCreatedOn());
+        credential.setUpdatedOn(authUserCredentialsRecord.getUpdatedOn());
+        credential.setIsActive(authUserCredentialsRecord.getIsActive());
+        credential.setState(authUserCredentialsRecord.getState());
+        credential.setApiSource(authUserCredentialsRecord.getApiSource());
+        credential.setNotes(authUserCredentialsRecord.getNotes());
         return credential;
     }
 
     @Override
     public void delete(Integer id) {
-        context.update(AUTH_USER_CREDENTIALS).set(AUTH_USER_CREDENTIALS.STATE, RecordState.DELETED.name()).where(AUTH_USER_CREDENTIALS.ID.eq(id)).execute();
+        context.update(AUTH_USER_CREDENTIALS)
+                .set(AUTH_USER_CREDENTIALS.STATE, RecordState.DELETED.name())
+                .where(AUTH_USER_CREDENTIALS.ID.eq(id))
+                .and(AUTH_USER_CREDENTIALS.STATE.eq(RecordState.ACTIVE.name()))
+                .and(AUTH_USER_CREDENTIALS.IS_ACTIVE.eq(true))
+                .execute();
     }
 
     @Override
     public AuthUserCredentialDao findByUUID(String uuid) {
-        return context.selectFrom(AUTH_USER_CREDENTIALS).where(AUTH_USER_CREDENTIALS.UUID.eq(uuid)).fetchAnyInto(AuthUserCredentialDao.class);
+        return context.selectFrom(AUTH_USER_CREDENTIALS).where(AUTH_USER_CREDENTIALS.UUID.eq(uuid))
+                .and(AUTH_USER_CREDENTIALS.IS_ACTIVE.eq(true))
+                .fetchAnyInto(AuthUserCredentialDao.class);
     }
 
     @Override
     public AuthUserCredentialDao findById(Integer id) {
-        return context.selectFrom(AUTH_USER_CREDENTIALS).where(AUTH_USER_CREDENTIALS.ID.eq(id)).fetchAnyInto(AuthUserCredentialDao.class);
+        return context.selectFrom(AUTH_USER_CREDENTIALS).where(AUTH_USER_CREDENTIALS.ID.eq(id))
+                .and(AUTH_USER_CREDENTIALS.IS_ACTIVE.eq(true))
+                .fetchAnyInto(AuthUserCredentialDao.class);
     }
 
     @Override

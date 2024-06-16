@@ -17,7 +17,7 @@ import java.util.Base64;
 public class SecretsManager {
     @Bean
     public SystemCredentialDto getSecret() {
-        if ("local".equals(System.getenv("ENV"))|| System.getenv("ENV")==null ) {
+        if ("local".equals(System.getenv("ENV")) || System.getenv("ENV") == null) {
             return SystemCredentialDto
                     .builder()
                     .mysqlPoolSize("5")
@@ -28,13 +28,13 @@ public class SecretsManager {
                     .mysqlPort("3307")
                     .build();
         }
-        log.info("Env : {}",System.getenv("ENV"));
-        String secretName = System.getenv("ENV")+"/auth/mysql";
+        log.info("Env : {}", System.getenv("ENV"));
+        String secretName = System.getenv("ENV") + "/auth/mysql";
         Region region = Region.of("ap-south-1");
         SecretsManagerClient client = SecretsManagerClient.builder()
                 .region(region)
                 .build();
-        String secret=null, decodedBinarySecret = null;
+        String secret = null, decodedBinarySecret = null;
         GetSecretValueRequest getSecretValueRequest = GetSecretValueRequest.builder()
                 .secretId(secretName)
                 .build();
@@ -50,7 +50,7 @@ public class SecretsManager {
         } else {
             decodedBinarySecret = new String(Base64.getDecoder().decode(getSecretValueResponse.secretBinary().asByteBuffer()).array());
         }
-        return  new Gson().fromJson(secret, SystemCredentialDto.class);
+        return new Gson().fromJson(secret, SystemCredentialDto.class);
     }
 }
 

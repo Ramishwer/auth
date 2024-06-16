@@ -1,7 +1,5 @@
 package com.goev.auth.config;
 
-import com.goev.auth.event.events.UserOnboardEvent;
-import com.goev.auth.event.handlers.UserOnboardEventHandler;
 import com.goev.lib.event.core.EventChannel;
 import com.goev.lib.event.core.impl.APIEventChannel;
 import com.goev.lib.event.service.EventProcessor;
@@ -18,11 +16,8 @@ import org.springframework.context.annotation.Configuration;
 public class EventConfig {
 
     @Bean
-    public EventProcessor getEventProcessor(EventChannel eventChannel,
-                                            UserOnboardEventHandler userOnboardEventHandler
-    ) {
+    public EventProcessor getEventProcessor(EventChannel eventChannel) {
         SimpleEventProcessor eventProcessor = new SimpleEventProcessor();
-        eventProcessor.registerEventHandlers(new UserOnboardEvent(),userOnboardEventHandler);
         return eventProcessor;
     }
 

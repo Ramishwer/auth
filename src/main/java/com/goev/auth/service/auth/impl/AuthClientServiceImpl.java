@@ -1,8 +1,8 @@
 package com.goev.auth.service.auth.impl;
 
 import com.goev.auth.dao.OrganizationDao;
-import com.goev.auth.dao.auth.AuthClientDao;
-import com.goev.auth.dto.auth.AuthClientDto;
+import com.goev.auth.dao.client.AuthClientDao;
+import com.goev.auth.dto.client.AuthClientDto;
 import com.goev.auth.repository.organization.OrganizationRepository;
 import com.goev.auth.service.auth.AuthClientService;
 import com.goev.auth.utilities.RequestContext;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class AuthClientServiceImpl implements AuthClientService {
     private final OrganizationRepository organizationRepository;
+
     @Override
     public AuthClientDto getClientDetails() {
 

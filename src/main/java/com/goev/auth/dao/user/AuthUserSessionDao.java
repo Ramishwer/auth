@@ -3,7 +3,6 @@ package com.goev.auth.dao.user;
 
 import com.goev.lib.dao.BaseDao;
 import lombok.*;
-import org.joda.time.DateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor

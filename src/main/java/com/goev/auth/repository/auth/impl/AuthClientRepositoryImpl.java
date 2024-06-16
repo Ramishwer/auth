@@ -1,13 +1,12 @@
 package com.goev.auth.repository.auth.impl;
 
-import com.goev.auth.dao.auth.AuthClientDao;
+import com.goev.auth.dao.client.AuthClientDao;
 import com.goev.auth.repository.auth.AuthClientRepository;
 import com.goev.lib.enums.RecordState;
 import com.goev.record.auth.tables.records.AuthClientsRecord;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,7 +22,7 @@ public class AuthClientRepositoryImpl implements AuthClientRepository {
 
     @Override
     public AuthClientDao save(AuthClientDao client) {
-        AuthClientsRecord authClientsRecord =  context.newRecord(AUTH_CLIENTS,client);
+        AuthClientsRecord authClientsRecord = context.newRecord(AUTH_CLIENTS, client);
         authClientsRecord.store();
         client.setId(authClientsRecord.getId());
         client.setUuid(authClientsRecord.getUuid());
@@ -32,24 +31,43 @@ public class AuthClientRepositoryImpl implements AuthClientRepository {
 
     @Override
     public AuthClientDao update(AuthClientDao client) {
-        AuthClientsRecord authClientsRecord =  context.newRecord(AUTH_CLIENTS,client);
+        AuthClientsRecord authClientsRecord = context.newRecord(AUTH_CLIENTS, client);
         authClientsRecord.update();
+
+
+        client.setCreatedBy(authClientsRecord.getCreatedBy());
+        client.setUpdatedBy(authClientsRecord.getUpdatedBy());
+        client.setCreatedOn(authClientsRecord.getCreatedOn());
+        client.setUpdatedOn(authClientsRecord.getUpdatedOn());
+        client.setIsActive(authClientsRecord.getIsActive());
+        client.setState(authClientsRecord.getState());
+        client.setApiSource(authClientsRecord.getApiSource());
+        client.setNotes(authClientsRecord.getNotes());
         return client;
     }
 
     @Override
     public void delete(Integer id) {
-        context.update(AUTH_CLIENTS).set(AUTH_CLIENTS.STATE, RecordState.DELETED.name()).where(AUTH_CLIENTS.ID.eq(id)).execute();
+        context.update(AUTH_CLIENTS)
+                .set(AUTH_CLIENTS.STATE, RecordState.DELETED.name())
+                .where(AUTH_CLIENTS.ID.eq(id))
+                .and(AUTH_CLIENTS.STATE.eq(RecordState.ACTIVE.name()))
+                .and(AUTH_CLIENTS.IS_ACTIVE.eq(true))
+                .execute();
     }
 
     @Override
     public AuthClientDao findByUUID(String uuid) {
-        return context.selectFrom(AUTH_CLIENTS).where(AUTH_CLIENTS.UUID.eq(uuid)).fetchAnyInto(AuthClientDao.class);
+        return context.selectFrom(AUTH_CLIENTS).where(AUTH_CLIENTS.UUID.eq(uuid))
+                .and(AUTH_CLIENTS.IS_ACTIVE.eq(true))
+                .fetchAnyInto(AuthClientDao.class);
     }
 
     @Override
     public AuthClientDao findById(Integer id) {
-        return context.selectFrom(AUTH_CLIENTS).where(AUTH_CLIENTS.ID.eq(id)).fetchAnyInto(AuthClientDao.class);
+        return context.selectFrom(AUTH_CLIENTS).where(AUTH_CLIENTS.ID.eq(id))
+                .and(AUTH_CLIENTS.IS_ACTIVE.eq(true))
+                .fetchAnyInto(AuthClientDao.class);
     }
 
     @Override
@@ -63,7 +81,7 @@ public class AuthClientRepositoryImpl implements AuthClientRepository {
     }
 
     @Override
-    public AuthClientDao findByClientIdAndClientSecret(String clientId,String clientSecret) {
+    public AuthClientDao findByClientIdAndClientSecret(String clientId, String clientSecret) {
         return context.selectFrom(AUTH_CLIENTS)
                 .where(AUTH_CLIENTS.CLIENT_KEY.eq(clientId))
                 .and(AUTH_CLIENTS.CLIENT_AUTH_SECRET.eq(clientSecret))
