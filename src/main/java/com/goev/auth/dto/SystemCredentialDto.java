@@ -1,11 +1,13 @@
 package com.goev.auth.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.gson.annotations.SerializedName;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SystemCredentialDto {
     @SerializedName("hostname")
     private String mysqlHostName;

@@ -93,10 +93,7 @@ public class AuthUserServiceImpl implements AuthUserService {
 
     private void createCredentials(AuthCredentialTypeDao credentialTypeDao, AuthUserDao authUserDao, OrganizationDao organizationDao, AuthClientDao clientDao) {
         String authKey = UUID.randomUUID().toString();
-        String authSecret = null;
-        if (ApplicationConstants.EMAIL_CREDENTIAL_TYPES.contains(credentialTypeDao.getId())) {
-            authSecret = SecretGenerationUtils.getEmailSecret();
-        }
+        String authSecret = SecretGenerationUtils.getSecret(11);
 
 
         AuthUserCredentialDao credential = new AuthUserCredentialDao();
@@ -104,17 +101,11 @@ public class AuthUserServiceImpl implements AuthUserService {
         credential.setOrganizationId(organizationDao.getId());
         credential.setAuthKey(authKey);
         credential.setUuid(authKey);
+        credential.setAuthSecret(authSecret);
 
-        if (authSecret != null)
-            credential.setAuthSecret(authSecret);
+        String keycloakId = keycloakService.addUser(credential, clientDao,authUserDao.getEmail());
 
-        if (ApplicationConstants.EMAIL_CREDENTIAL_TYPES.contains(credentialTypeDao.getId())) {
-            String keycloakId = keycloakService.addUserForEmail(credential, clientDao, authUserDao.getEmail());
-
-            credential.setKeycloakUuid(keycloakId);
-            authUserCredentialRepository.save(credential);
-        } else if (ApplicationConstants.PHONE_NUMBER_CREDENTIAL_TYPES.contains(credentialTypeDao.getId())) {
-            String keycloakId = keycloakService.addUser(credential, clientDao);
+        if(keycloakId == null) {
             credential.setKeycloakUuid(keycloakId);
             authUserCredentialRepository.save(credential);
         }

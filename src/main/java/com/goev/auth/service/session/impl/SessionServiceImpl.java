@@ -254,8 +254,6 @@ public class SessionServiceImpl implements SessionService {
         if (mapping == null)
             throw new ResponseException("Invalid Credential Type");
 
-        if (!ApplicationConstants.PHONE_NUMBER_CREDENTIAL_TYPES.contains(credentialTypeDao.getId()))
-            throw new ResponseException("Invalid Credential Type");
         AuthUserDao authUser = authUserRepository.findByPhoneNumber(phoneNumber);
 
         String keycloakId = null;
@@ -282,7 +280,7 @@ public class SessionServiceImpl implements SessionService {
             credentialDao.setUuid(uuid);
             credentialDao.setAuthCredentialTypeId(credentialTypeDao.getId());
             credentialDao = authUserCredentialRepository.save(credentialDao);
-            keycloakId = keycloakService.addUser(credentialDao, clientDao);
+            keycloakId = keycloakService.addUser(credentialDao, clientDao,authUser.getEmail());
 
             credentialDao.setKeycloakUuid(keycloakId);
             credentialDao = authUserCredentialRepository.update(credentialDao);
@@ -290,7 +288,7 @@ public class SessionServiceImpl implements SessionService {
         }
 
 
-        String secret = SecretGenerationUtils.getPhoneSecret();
+        String secret = SecretGenerationUtils.getSecret(6);
 
 
         credentialDao.setAuthSecret(Md5Utils.getMd5(secret));

@@ -2,30 +2,18 @@ package com.goev.auth.utilities;
 
 import com.goev.auth.constant.ApplicationConstants;
 
+import java.math.BigDecimal;
 import java.util.Random;
 import java.util.UUID;
 
 public class SecretGenerationUtils {
+    private static final Random GENERATOR = new Random();
     private SecretGenerationUtils() {
     }
 
-    public static String getPhoneSecret() {
-        if (ApplicationConstants.FIXED_PHONE_SECRET != null)
-            return ApplicationConstants.FIXED_PHONE_SECRET;
-        else {
-            Random generator = new Random();
-            int num = generator.nextInt(899999) + 100000;
+    public static String getSecret(Integer number) {
+
+            long num = GENERATOR.nextLong(BigDecimal.valueOf(Math.pow(10.0,number)-Math.pow(10.0,number-1.0)-1.0).longValue()) + BigDecimal.valueOf(Math.pow(10.0,number-1.0)-1).longValue();
             return String.valueOf(num);
-
-        }
-    }
-
-    public static String getEmailSecret() {
-        if (ApplicationConstants.FIXED_EMAIL_SECRET != null)
-            return ApplicationConstants.FIXED_EMAIL_SECRET;
-        else {
-            return UUID.randomUUID().toString().substring(0, 10);
-
-        }
     }
 }

@@ -16,9 +16,7 @@ public interface KeycloakService {
 
     boolean updateUser(AuthUserCredentialDao authUserCredentialDao, AuthClientDao client);
 
-    String addUser(AuthUserCredentialDao authUserCredentialDao, AuthClientDao client);
-
-    String addUserForEmail(AuthUserCredentialDao authUserCredentialDao, AuthClientDao client, String email);
+    String addUser(AuthUserCredentialDao authUserCredentialDao, AuthClientDao client, String email);
 
     KeycloakTokenDto login(AuthCredentialDto credentials, AuthClientDao client);
 

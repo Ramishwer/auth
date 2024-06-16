@@ -21,13 +21,8 @@ public class ApplicationConstants {
     public static String CENTRAL_URL;
     public static String PARTNER_URL;
 
-    public static String FIXED_PHONE_SECRET;
-    public static String FIXED_EMAIL_SECRET;
-
+    public static String FIXED_SECRET;
     public static Boolean SHOW_SECRETS;
-
-    public static List<Integer> PHONE_NUMBER_CREDENTIAL_TYPES = new ArrayList<>();
-    public static List<Integer> EMAIL_CREDENTIAL_TYPES = new ArrayList<>();
 
 
     private final ConstantUtils constantUtils;

@@ -1,5 +1,6 @@
 package com.goev.auth.dto.keycloak;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.gson.annotations.SerializedName;
 import lombok.*;
 
@@ -9,6 +10,7 @@ import lombok.*;
 @Setter
 @ToString
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class KeycloakUserDetailsDto {
     private String sub;
     @SerializedName("email_verified")
