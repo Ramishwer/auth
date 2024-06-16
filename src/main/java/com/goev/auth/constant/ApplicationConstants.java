@@ -18,9 +18,6 @@ public class ApplicationConstants {
     public static List<String> WHITE_LIST_NUMBERS = new ArrayList<>();
     public static String MSG91_MESSAGE_API_KEY;
     public static String APPLICATION_ID;
-    public static String CENTRAL_URL;
-    public static String PARTNER_URL;
-
     public static String FIXED_SECRET;
     public static Boolean SHOW_SECRETS;
 
