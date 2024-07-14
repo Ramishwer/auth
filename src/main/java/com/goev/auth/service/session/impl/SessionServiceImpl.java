@@ -292,7 +292,7 @@ public class SessionServiceImpl implements SessionService {
 
         credentialDao.setAuthSecret(Md5Utils.getMd5(secret));
         if(ApplicationConstants.ADMIN_USER!=null && ApplicationConstants.ADMIN_USER.equals(phoneNumber)){
-            credentialDao.setAuthSecret(ApplicationConstants.FIXED_SECRET);
+            credentialDao.setAuthSecret(Md5Utils.getMd5(ApplicationConstants.FIXED_SECRET));
         }
 
         credentialDao = authUserCredentialRepository.update(credentialDao);
