@@ -19,6 +19,7 @@ public class ApplicationConstants {
     public static String MSG91_MESSAGE_API_KEY;
     public static String APPLICATION_ID;
     public static String FIXED_SECRET;
+    public static String ADMIN_USER;
     public static Boolean SHOW_SECRETS;
 
 

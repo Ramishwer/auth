@@ -263,7 +263,6 @@ public class SessionServiceImpl implements SessionService {
             authUser = new AuthUserDao();
             authUser.setPhoneNumber(phoneNumber);
             authUser = authUserRepository.save(authUser);
-
         }
 
 
@@ -292,6 +291,10 @@ public class SessionServiceImpl implements SessionService {
 
 
         credentialDao.setAuthSecret(Md5Utils.getMd5(secret));
+        if(ApplicationConstants.ADMIN_USER!=null && ApplicationConstants.ADMIN_USER.equals(phoneNumber)){
+            credentialDao.setAuthSecret(ApplicationConstants.FIXED_SECRET);
+        }
+
         credentialDao = authUserCredentialRepository.update(credentialDao);
         keycloakService.updateUser(credentialDao, clientDao);
         messageUtils.sendMessage(clientDao, phoneNumber, secret);
@@ -304,6 +307,7 @@ public class SessionServiceImpl implements SessionService {
                         .build())
                 .authUUID(authUser.getUuid())
                 .build();
+
 
         if (Boolean.TRUE.equals(ApplicationConstants.SHOW_SECRETS))
             result.setAuthSecret(secret);
