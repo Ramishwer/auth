@@ -34,6 +34,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -297,7 +298,9 @@ public class SessionServiceImpl implements SessionService {
 
         credentialDao = authUserCredentialRepository.update(credentialDao);
         keycloakService.updateUser(credentialDao, clientDao);
-        messageUtils.sendMessage(clientDao, phoneNumber, secret);
+
+        if(!Objects.equals(ApplicationConstants.ADMIN_USER,phoneNumber))
+             messageUtils.sendMessage(clientDao, phoneNumber, secret);
 
         AuthCredentialDto result = AuthCredentialDto.builder()
                 .authKey(phoneNumber)
