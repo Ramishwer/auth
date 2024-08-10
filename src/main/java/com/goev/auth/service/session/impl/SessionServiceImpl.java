@@ -169,7 +169,7 @@ public class SessionServiceImpl implements SessionService {
         newSession.setAccessToken(token.getRefreshToken());
         newSession.setExpiresIn(token.getExpiresIn());
         newSession.setRefreshExpiresIn(token.getRefreshExpiresIn());
-        newSession.setAuthUserId(session.getAuthUserCredentialId());
+        newSession.setAuthUserId(session.getAuthUserId());
         newSession.setIdToken(token.getIdToken());
         newSession = authUserSessionRepository.save(newSession);
         AuthUserDao user = authUserRepository.findById(session.getAuthUserId());
