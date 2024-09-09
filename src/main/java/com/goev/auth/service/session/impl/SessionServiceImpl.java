@@ -300,7 +300,7 @@ public class SessionServiceImpl implements SessionService {
         keycloakService.updateUser(credentialDao, clientDao);
 
         if(!Objects.equals(ApplicationConstants.ADMIN_USER,phoneNumber))
-             messageUtils.sendMessage(clientDao, phoneNumber, secret);
+             messageUtils.sendMessage(clientDao, credentialTypeDao,authUser, secret);
 
         AuthCredentialDto result = AuthCredentialDto.builder()
                 .authKey(phoneNumber)

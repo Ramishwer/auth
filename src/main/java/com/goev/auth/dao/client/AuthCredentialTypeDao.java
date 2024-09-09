@@ -12,4 +12,5 @@ public class AuthCredentialTypeDao extends BaseDao {
     private String name;
     private String description;
     private Integer organizationId;
+    private String communicationChannelType;
 }

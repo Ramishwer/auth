@@ -1,9 +1,13 @@
 package com.goev.auth.constant;
 
 import com.goev.auth.utilities.ConstantUtils;
+import com.goev.lib.utilities.GsonDateTimeSerializer;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -13,6 +17,8 @@ import java.util.List;
 @Slf4j
 @AllArgsConstructor
 public class ApplicationConstants {
+    public static final Gson GSON = new GsonBuilder().registerTypeAdapter(DateTime.class, new GsonDateTimeSerializer()).create();
+
     public static Boolean IS_MESSAGE_ENABLED = false;
     public static Boolean IS_WHITE_LISTING_ENABLED = false;
     public static List<String> WHITE_LIST_NUMBERS = new ArrayList<>();

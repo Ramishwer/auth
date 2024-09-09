@@ -91,6 +91,38 @@ public class AuthUserServiceImpl implements AuthUserService {
                 .organizationUUID(organizationDao.getUuid()).uuid(authUserDao.getUuid()).build();
     }
 
+    @Override
+    public AuthUserDto updateUser(String authUUID, AuthUserDto user) {
+        AuthClientDao clientDao = RequestContext.getClient();
+        if (clientDao == null)
+            throw new ResponseException("Invalid Client");
+
+        OrganizationDao organizationDao = organizationRepository.findById(clientDao.getOrganizationId());
+        if (organizationDao == null)
+            throw new ResponseException("Invalid Client");
+
+        AuthUserDao authUserDao = authUserRepository.findByUUID(authUUID);
+        if (authUserDao == null) {
+            throw new ResponseException("User with id does not exist :"+authUUID);
+        }
+
+
+        AuthUserDao existing = authUserRepository.findByPhoneNumber(user.getPhoneNumber());
+        if (existing != null && !authUserDao.getId().equals(existing.getId())) {
+            throw new ResponseException("User with phone number already exist :"+user.getPhoneNumber());
+        }
+
+
+        authUserDao.setPhoneNumber(user.getPhoneNumber());
+        authUserDao.setEmail(user.getEmail());
+        authUserDao.setOrganizationId(organizationDao.getId());
+        authUserDao = authUserRepository.update(authUserDao);
+
+
+        return AuthUserDto.builder().email(authUserDao.getEmail()).phoneNumber(authUserDao.getPhoneNumber())
+                .organizationUUID(organizationDao.getUuid()).uuid(authUserDao.getUuid()).build();
+    }
+
     private void createCredentials(AuthCredentialTypeDao credentialTypeDao, AuthUserDao authUserDao, OrganizationDao organizationDao, AuthClientDao clientDao) {
         String authKey = UUID.randomUUID().toString();
         String authSecret = SecretGenerationUtils.getSecret(11);
