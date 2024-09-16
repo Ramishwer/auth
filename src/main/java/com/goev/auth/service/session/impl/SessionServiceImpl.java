@@ -16,6 +16,7 @@ import com.goev.auth.dto.keycloak.KeycloakUserDetailsDto;
 import com.goev.auth.dto.session.ExchangeTokenRequestDto;
 import com.goev.auth.dto.session.SessionDetailsDto;
 import com.goev.auth.dto.session.SessionDto;
+import com.goev.auth.enums.ResendType;
 import com.goev.auth.repository.auth.AuthClientCredentialTypeMappingRepository;
 import com.goev.auth.repository.auth.AuthClientRepository;
 import com.goev.auth.repository.auth.AuthCredentialTypeRepository;
@@ -241,7 +242,7 @@ public class SessionServiceImpl implements SessionService {
     }
 
     @Override
-    public AuthCredentialDto getSessionForSessionType(String phoneNumber, String credentialTypeUUID) {
+    public AuthCredentialDto getSessionForSessionType(String phoneNumber, String credentialTypeUUID, Boolean resend, String resendType) {
 
         AuthClientDao clientDao = RequestContext.getClient();
         if (clientDao == null)
@@ -256,6 +257,19 @@ public class SessionServiceImpl implements SessionService {
             throw new ResponseException("Invalid Credential Type");
 
         AuthUserDao authUser = authUserRepository.findByPhoneNumber(phoneNumber);
+
+        if(Boolean.TRUE.equals(resend)){
+            if(!Objects.equals(ApplicationConstants.ADMIN_USER,phoneNumber))
+                messageUtils.resendMessage(clientDao, credentialTypeDao,authUser, ResendType.valueOf(resendType));
+            return AuthCredentialDto.builder()
+                    .authKey(phoneNumber)
+                    .authCredentialType(AuthCredentialTypeDto.builder()
+                            .name(credentialTypeDao.getName())
+                            .uuid(credentialTypeDao.getUuid())
+                            .build())
+                    .authUUID(authUser.getUuid())
+                    .build();
+        }
 
         String keycloakId = null;
         if (authUser == null) {

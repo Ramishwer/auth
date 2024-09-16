@@ -22,8 +22,11 @@ public class SessionController {
     private final SessionService sessionService;
 
     @GetMapping("/sessions/credential-types/{credential-type-uuid}")
-    public ResponseDto<AuthCredentialDto> getSessions(@RequestParam(value = "phoneNumber") String phoneNumber, @PathVariable(value = "credential-type-uuid") String credentialType, HttpServletRequest request) {
-        return new ResponseDto<>(StatusDto.builder().message("SUCCESS").build(), 200, sessionService.getSessionForSessionType(phoneNumber, credentialType));
+    public ResponseDto<AuthCredentialDto> getSessions(@RequestParam(value = "phoneNumber") String phoneNumber,
+                                                      @RequestParam(value = "resend", required = false, defaultValue = "false") Boolean resend,
+                                                      @RequestParam(value = "resendType", required = false) String resendType,
+                                                      @PathVariable(value = "credential-type-uuid") String credentialType) {
+        return new ResponseDto<>(StatusDto.builder().message("SUCCESS").build(), 200, sessionService.getSessionForSessionType(phoneNumber, credentialType,resend,resendType));
     }
 
     @PostMapping("/sessions")

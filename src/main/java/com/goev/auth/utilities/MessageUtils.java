@@ -7,6 +7,7 @@ import com.goev.auth.dao.user.AuthUserDao;
 import com.goev.auth.dto.MessageResponseDto;
 import com.goev.auth.dto.client.CommunicationChannelConfigDto;
 import com.goev.auth.enums.CommunicationChannelType;
+import com.goev.auth.enums.ResendType;
 import com.goev.lib.services.RestClient;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -44,8 +45,6 @@ public class MessageUtils {
         return false;
 
     }
-
-
     private boolean sendSms(String mobileNumber, String secret, AuthClientDao clientDao) {
         if (Boolean.TRUE.equals(ApplicationConstants.IS_WHITE_LISTING_ENABLED) && !ApplicationConstants.WHITE_LIST_NUMBERS.contains(mobileNumber)) {
             log.info("Mobile number whitelisting enabled and mobile number not present in list");
@@ -71,4 +70,46 @@ public class MessageUtils {
             return false;
         }
     }
+
+
+    public boolean resendMessage(AuthClientDao clientDao, AuthCredentialTypeDao credentialTypeDao, AuthUserDao authUserDao, ResendType resendType) {
+        if (!Boolean.TRUE.equals(ApplicationConstants.IS_MESSAGE_ENABLED)) {
+            log.info("Messages Disabled");
+            return false;
+        }
+        switch (CommunicationChannelType.valueOf(credentialTypeDao.getCommunicationChannelType())) {
+            case SMS -> {
+                return resendSms(authUserDao.getPhoneNumber(), clientDao,resendType);
+            }
+            case EMAIL -> {
+                return false;
+            }
+        }
+
+        return false;
+
+    }
+
+    private boolean resendSms(String mobileNumber,AuthClientDao clientDao, ResendType resendType) {
+        if (Boolean.TRUE.equals(ApplicationConstants.IS_WHITE_LISTING_ENABLED) && !ApplicationConstants.WHITE_LIST_NUMBERS.contains(mobileNumber)) {
+            log.info("Mobile number whitelisting enabled and mobile number not present in list");
+            return false;
+        }
+        try {
+            List<MediaType> accept = new ArrayList<>();
+            accept.add(MediaType.APPLICATION_JSON);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.add("authkey", ApplicationConstants.MSG91_MESSAGE_API_KEY);
+            headers.setAccept(accept);
+            String response = restClient.get("https://control.msg91.com/api/v5/otp/retry?mobile=91" + mobileNumber + "&retryType=" + resendType.getName(), headers, String.class, true, false);
+            MessageResponseDto responseDto = new Gson().fromJson(response, new TypeToken<MessageResponseDto>() {
+            }.getType());
+            return responseDto.getType().equals("success");
+        } catch (Exception e) {
+            log.info("Error in sending message to " + mobileNumber + "error " + e);
+            return false;
+        }
+    }
+
 }

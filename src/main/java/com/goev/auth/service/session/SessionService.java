@@ -17,5 +17,5 @@ public interface SessionService {
 
     Boolean deleteSession(String sessionUUID);
 
-    AuthCredentialDto getSessionForSessionType(String phoneNumber, String credentialType);
+    AuthCredentialDto getSessionForSessionType(String phoneNumber, String credentialType, Boolean resend, String resendType);
 }
