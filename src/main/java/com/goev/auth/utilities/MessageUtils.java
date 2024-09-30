@@ -102,7 +102,8 @@ public class MessageUtils {
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.add("authkey", ApplicationConstants.MSG91_MESSAGE_API_KEY);
             headers.setAccept(accept);
-            String response = restClient.get("https://control.msg91.com/api/v5/otp/retry?mobile=91" + mobileNumber + "&retryType=" + resendType.getName(), headers, String.class, true, false);
+            String response = restClient.get("https://control.msg91.com/api/v5/otp/retry?mobile=91" + mobileNumber + "&retrytype=" + resendType.getName(), headers, String.class, true, false);
+           log.info("Response : {}",response);
             MessageResponseDto responseDto = new Gson().fromJson(response, new TypeToken<MessageResponseDto>() {
             }.getType());
             return responseDto.getType().equals("success");
