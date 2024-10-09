@@ -72,6 +72,10 @@ public class AuthUserServiceImpl implements AuthUserService {
             authUserDao.setEmail(user.getEmail());
             authUserDao.setOrganizationId(organizationDao.getId());
             authUserDao = authUserRepository.save(authUserDao);
+        }else if(authUserDao.getEmail() == null){
+            authUserDao.setEmail(user.getEmail());
+            authUserDao.setOrganizationId(organizationDao.getId());
+            authUserDao = authUserRepository.update(authUserDao);
         }
 
         for (AuthClientCredentialTypeMappingDao mappingDao : credentialTypeMappingDao) {
