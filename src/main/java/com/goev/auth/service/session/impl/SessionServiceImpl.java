@@ -70,9 +70,6 @@ public class SessionServiceImpl implements SessionService {
 
         if (user == null)
             throw new ResponseException("Invalid Credentials");
-        user = new AuthUserDao();
-        user.setPhoneNumber(credentials.getAuthKey());
-        user = authUserRepository.save(user);
 
         AuthUserCredentialDao credentialDao = authUserCredentialRepository.findByAuthUserIdAndCredentialTypeId(user.getId(), credentialTypeDao.getId());
         if (credentialDao == null)
@@ -317,7 +314,7 @@ public class SessionServiceImpl implements SessionService {
         keycloakService.updateUser(credentialDao, clientDao);
 
         if(!Objects.equals(ApplicationConstants.ADMIN_USER,phoneNumber))
-             messageUtils.sendMessage(clientDao, credentialTypeDao,authUser, secret);
+            messageUtils.sendMessage(clientDao, credentialTypeDao,authUser, secret);
 
         AuthCredentialDto result = AuthCredentialDto.builder()
                 .authKey(phoneNumber)
