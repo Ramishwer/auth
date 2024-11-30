@@ -67,9 +67,21 @@ public class SessionServiceImpl implements SessionService {
             throw new ResponseException("Invalid Credentials");
 
         AuthUserDao user = authUserRepository.findByUUID(credentials.getAuthUUID());
+        boolean isOtpValid = false;
 
         if (user == null)
-            throw new ResponseException("Invalid Credentials");
+           // throw new ResponseException("Invalid Credentials");
+
+              isOtpValid = verifyOtpForNewUser(credentials);
+
+        if (!isOtpValid) {
+            throw new ResponseException("Invalid OTP for new user");
+
+        }
+
+        user = new AuthUserDao();
+        user.setPhoneNumber(credentials.getAuthKey());
+        user = authUserRepository.save(user);
 
         AuthUserCredentialDao credentialDao = authUserCredentialRepository.findByAuthUserIdAndCredentialTypeId(user.getId(), credentialTypeDao.getId());
         if (credentialDao == null)
@@ -106,6 +118,36 @@ public class SessionServiceImpl implements SessionService {
                 .organizationUUID(organizationDao.getUuid())
                 .build();
     }
+
+    private boolean verifyOtpForNewUser(AuthCredentialDto credentials) {
+        String phoneNumber = credentials.getAuthKey();
+        String otp = credentials.getAuthSecret();
+
+        AuthClientDao clientDao = RequestContext.getClient();
+        if (clientDao == null) {
+            log.error("Invalid client context");
+            return false;
+        }
+
+        AuthCredentialTypeDao credentialTypeDao = authCredentialTypeRepository.findByUUID(credentials.getAuthCredentialType().getUuid());
+        if (credentialTypeDao == null) {
+            log.error("Invalid credential type");
+            return false;
+        }
+
+        boolean otpSent = sendOtpToNewUser(phoneNumber, otp, clientDao, credentialTypeDao);
+        return otpSent;
+    }
+
+    private boolean sendOtpToNewUser(String phoneNumber, String otp, AuthClientDao clientDao, AuthCredentialTypeDao credentialTypeDao) {
+        try {
+            return messageUtils.sendMessage(clientDao, credentialTypeDao, new AuthUserDao(), otp);
+        } catch (Exception e) {
+            log.error("Error sending OTP to new user with phone number: " + phoneNumber, e);
+            return false;
+        }
+    }
+
 
     @Override
     public SessionDto createSession(ExchangeTokenRequestDto exchangeTokenRequest) {
